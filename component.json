@@ -1,0 +1,14 @@
+{
+  "name": "ubuntu-net-dev",
+  "repo": "nomilous/ubuntu-net-dev",
+  "description": "ubuntu network device counters",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": [
+    "index.js"
+  ]
+}
