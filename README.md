@@ -1,5 +1,5 @@
-vital-linux-net-dev
-===================
+vital-linux-net-nics
+====================
 
 [vital](https://github.com/nomilous/vital) - linux network device counters
 
