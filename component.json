@@ -1,7 +1,7 @@
 {
-  "name": "ubuntu-net-dev",
-  "repo": "nomilous/ubuntu-net-dev",
-  "description": "ubuntu network device counters",
+  "name": "vital-linux-net-dev",
+  "repo": "nomilous/vital-linux-net-dev",
+  "description": "vital - linux network device counters",
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {},
