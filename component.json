@@ -1,7 +1,7 @@
 {
-  "name": "vital-linux-net-nics",
-  "repo": "nomilous/vital-linux-net-nics",
-  "description": "vital - linux network device counters",
+  "name": "linux-if-stats",
+  "repo": "nomilous/linux-if-stats",
+  "description": "vital - linux network interface counters",
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {},
@@ -11,5 +11,8 @@
   "scripts": [
     "index.js",
     "lib/device.js"
-  ]
+  ],
+  "inject": {
+    "alias": "ifStats"
+  }
 }

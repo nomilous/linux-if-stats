@@ -1,7 +1,7 @@
-vital-linux-net-nics
-====================
+linux-if-stats
+==============
 
-[vital](https://github.com/nomilous/vital) - linux network device counters
+[vital](https://github.com/nomilous/vital) - linux network interface counters
 
 
 dev / test 
