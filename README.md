@@ -1,9 +1,7 @@
-ubuntu-net-dev
-==============
+vital-linux-net-dev
+===================
 
-ubuntu network device counters
-
-
+[vital](https://github.com/nomilous/vital) - linux network device counters
 
 
 dev / test 
