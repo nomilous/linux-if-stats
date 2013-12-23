@@ -9,6 +9,7 @@ dev / test
 ```
 
 # sudo npm install ipso-cli -g
+npm install
 ipso -m
 
 ```

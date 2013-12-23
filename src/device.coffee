@@ -1,1 +1,1 @@
-module.exports = -> 'okgood'
+module.exports = -> 'interface stats'
