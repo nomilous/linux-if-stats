@@ -1,6 +1,15 @@
 fs = require 'fs'
 {EOL} = require 'os'
+
+
 q = require 'q'
+
+#
+#
+# HUH? thought i took care of this... (grumbles)
+# 
+# Error: Cannot find module 'undefined'
+#
 
 console.log Q: q
 
