@@ -38,7 +38,7 @@ describe 'Devices', ->
 
     it 'can start and stop polling', 
 
-        ipso (facto, Devices, local) -> 
+        ipso (facto, Devices, local, should) -> 
 
             local.interval = 10
             Devices.start()
@@ -77,8 +77,22 @@ describe 'Devices', ->
                 # it should have been stopped at 3 readings
                 #
 
+                should.not.exist local.timer
                 @readings.should.equal 3
                 facto()
 
             ), 100 # time for 9 readings
+
+
+    it 'does not start if already running', 
+
+        ipso (Devices, local) -> 
+
+            Devices.start()
+            timer = local.timer
+            Devices.start()
+            local.timer.should.equal timer
+
+
+
 

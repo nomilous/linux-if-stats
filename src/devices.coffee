@@ -84,12 +84,14 @@ local =
 
     start: -> 
 
+        return if alreadyRunning = local.timer?
         local.timer = setInterval local.poll, local.interval
 
 
     stop: -> 
 
         clearInterval local.timer
+        local.timer = undefined
 
 
 
