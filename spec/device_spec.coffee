@@ -23,7 +23,7 @@ describe 'Device', ->
             original arguments
 
 
-    it 'defines current property to return the latest reading', 
+    it 'defines current() to access the latest reading', 
 
         ipso (local, Device) -> 
 
