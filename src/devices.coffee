@@ -43,7 +43,19 @@ local =
     interval: 1000
     timer:    undefined
     polling:  false
-    current: -> local.reading
+
+    current: (opts, callback) ->
+
+        #
+        # responds synchronously or asynchronously
+        # ----------------------------------------
+        # 
+        # * opts arg is present to support the web export (see below)
+        #
+
+        error = null
+        return callback error, local.reading if typeof callback is 'function'
+        return local.reading
 
     poll: -> 
 
@@ -123,6 +135,45 @@ local =
         local.timer = undefined
 
 
+    ###
+
+    vertex friendlyness
+    -------------------
+
+    * this config() function can be exported on a running vertex (see web exports below)
+    * web hit: `config?interval=10000` will call the function with `opts.query.interval`
+    * obviously having to pass opts.query.interval would seem a bit obtuse for local use, 
+      so the function does a bit of juggling about that
+    * admittedly this need could be considered a bit of a design wrinkle
+        * missing:  Alternative
+        * lastseen: 29th Feb, 2017
+
+    ###
+
+    config: (opts, callback) -> 
+
+        params = opts || {}
+        if opts.query? then params = opts.query
+
+        #
+        # possibly use a decorator for that little switch-a-roo
+        #
+
+        for key of params
+
+            if key is 'interval'
+
+                try local.interval = parseInt params[key]
+
+                #
+                # * needs a restart on the new interval if running
+                # * if not running, it still wont be after this
+                #
+
+                if local.timer?
+
+                    local.stop()
+                    local.start()
 
 
 
@@ -133,11 +184,13 @@ web exports
 
 * these functions become availiable over http if this component is grafted 
   onto a running [vertex](https://github.com/nomilous/vertex) routes tree
+* still much to be done with vertex
+* eg. roles in the export config below does nothing yet
 
 ###
 
 local.current.$www = {}
-
+local.config.$www = roles: ['admin']
 
 
 ###
@@ -153,6 +206,7 @@ module.exports =
     current: local.current
     start:   local.start
     stop:    local.stop
+    config:  local.config
 
 
 

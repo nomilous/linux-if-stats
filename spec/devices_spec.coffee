@@ -102,4 +102,27 @@ describe 'Devices', ->
             facto help: 'dunno how to test this one'
 
 
+    it 'can reset the polling interval while running', 
+
+        ipso (Devices, local) -> 
+
+            Devices.start()
+            Devices.config interval: 10000
+            local.interval.should.equal 10000
+            local.timer._idleTimeout.should.equal 10000
+
+
+    it 'can reset the interval pending poller next start if not running', 
+
+        ipso (Devices, local, should) -> 
+
+            Devices.stop()
+            Devices.config interval: 3000
+            local.interval.should.equal 3000
+            should.not.exist local.timer
+
+            Devices.start()
+            local.timer._idleTimeout.should.equal 3000
+
+
 
