@@ -39,6 +39,10 @@ local
 
 local = 
 
+    supported: true     # set to false on missing /proc/net/dev when discovered so
+                        # TODO: more actively verify supported platform and behave accordingly
+                        #       posibility of error on reading procfile something other that
+                        #       it's missing, therefore supported, and something else is wrong
     reading:  {}
     interval: 1000
     timer:    undefined
@@ -47,14 +51,29 @@ local =
     current: (opts, callback) ->
 
         #
+        # * TODO: if the first call to current() happens before the first poll
+        #         then things don't go quite as planned... fix
+        #
+
+        #
         # responds synchronously or asynchronously
         # ----------------------------------------
         # 
         # * opts arg is present to support the web export (see below)
         #
 
+
         error = null
+        unless local.supported 
+            platform = process.platform
+            error = new Error "Platform unsupported, expected: linux, got: #{platform}"
+                            #
+                            # * vertex might not handle this porperly yet cant recall, find out later
+                            # * other problems with procfile cause 'expected: linux, got: linux'
+                            # 
+
         return callback error, local.reading if typeof callback is 'function'
+        throw error unless local.supported
         return local.reading
 
     poll: -> 
@@ -73,7 +92,18 @@ local =
         # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
         #
 
-        data = fs.readFileSync '/proc/net/dev'
+        try data = fs.readFileSync '/proc/net/dev'
+        catch error
+
+            #
+            # seems like /proc/net/dev is readable by all
+            # so this happens only on missing file a.k.a unsupported
+            # 
+
+            local.supported = false
+            local.polling = false
+            return
+
         data.split( EOL )[2..].map (line) -> 
 
             [ignore, iface, readings] = line.match /\s*(.*)\:(.*)/
