@@ -87,7 +87,9 @@ local =
         local.timer = setInterval local.poll, local.interval
 
 
+    stop: -> 
 
+        clearInterval local.timer
 
 
 
@@ -119,6 +121,7 @@ module.exports =
 
     current: local.current
     start:   local.start
+    stop:    local.stop
 
 
 

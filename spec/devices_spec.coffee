@@ -6,14 +6,20 @@ describe 'Devices', ->
 
         tag local: Devices.test()
 
-        fs.does readFileSync: (filename) ->  
+        @readings = 0
 
-            return """
-            Inter-|   Receive                                                |  Transmit
-             face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
-              eth0: 683321528  714240    0    0    0     0          0         0 138555453  347991    0    0    0     0       0          0
-                lo: 95110463   32919    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
-            """ if filename is '/proc/net/dev'
+        fs.does readFileSync: (filename) => 
+
+            if filename is '/proc/net/dev'
+                
+                @readings++
+
+                return """
+                Inter-|   Receive                                                |  Transmit
+                 face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+                  eth0: 683321528  714240    0    0    0     0          0         0 138555453  347991    0    0    0     0       0          0
+                    lo: 95110463   32919    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
+                """ 
 
             #
             # otherwise run original readFileSync (module loader needs it)
@@ -30,14 +36,17 @@ describe 'Devices', ->
             Devices.current().should.eql eth0: rxBytes: 0
 
 
-    it 'can start the polling', 
+    it 'can start and stop polling', 
 
         ipso (facto, Devices, local) -> 
 
             local.interval = 10
             Devices.start()
 
-            setTimeout (->
+            setTimeout (=>
+
+                Devices.stop()
+                @readings.should.equal 3
 
                 Devices.current().eth0.should.eql 
 
@@ -59,7 +68,17 @@ describe 'Devices', ->
                     txCarrier: 0
                     txCompressed: 0
 
+            ), 40 # time for three readings
+
+
+            setTimeout (=> 
+
+                #
+                # it should have been stopped at 3 readings
+                #
+
+                @readings.should.equal 3
                 facto()
 
-            ), 20
+            ), 100 # time for 9 readings
 
