@@ -159,21 +159,35 @@ local =
         # possibly use a decorator for that little switch-a-roo
         #
 
+        results = {}
+
         for key of params
 
             if key is 'interval'
 
-                try local.interval = parseInt params[key]
+                results[key] = changed: false
 
-                #
-                # * needs a restart on the new interval if running
-                # * if not running, it still wont be after this
-                #
+                try 
 
-                if local.timer?
+                    oldVal = local.interval
+                    local.interval = parseInt params[key]
+                    results[key]   = changed: true
+                    results[key].oldVal  = oldVal
+                    results[key].newVal  = local.interval
+                    results[key].running = false
 
-                    local.stop()
-                    local.start()
+                    #
+                    # * needs a restart on the new interval if running
+                    # * if not running, it still wont be after this
+                    #
+
+                    if local.timer?
+
+                        local.stop()
+                        local.start()
+                        results[key].running = true
+
+        if typeof callback is 'function' then callback null, results
 
 
 

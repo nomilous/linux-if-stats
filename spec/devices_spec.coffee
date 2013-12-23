@@ -125,4 +125,30 @@ describe 'Devices', ->
             local.timer._idleTimeout.should.equal 3000
 
 
+    it 'calls back with result if callback provided', 
+
+        #
+        # this one's a little up-in-the-air re shape and size of response
+        # specifically: error code other than 200 for vertex call on failure
+        # 
+
+        ipso (facto, Devices) -> 
+
+            Devices.config interval: 3000
+            Devices.start()
+
+            Devices.config interval: 2000, (err, res) -> 
+                
+                res.should.eql 
+
+                    interval:
+
+                        changed: true
+                        oldVal: 3000
+                        newVal: 2000
+                        running: true
+
+                facto()
+
+
 
