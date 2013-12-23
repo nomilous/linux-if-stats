@@ -1,8 +1,10 @@
-{ipso, original} = require 'ipso'
+{ipso, original, tag} = require 'ipso'
 
 describe 'Device', -> 
 
-    before ipso (fs) -> 
+    before ipso (fs, Device) -> 
+
+        tag local: Device.test()
 
         fs.does readFileSync: (filename) ->  
 
@@ -20,3 +22,10 @@ describe 'Device', ->
 
             original arguments
 
+
+    it 'defines current property to return the latest reading', 
+
+        ipso (local, Device) -> 
+
+            local.reading = "DATA"
+            Device.current().should.equal 'DATA'
