@@ -1,1 +1,1 @@
-module.exports = require('./lib/device');
+module.exports = require('./lib/devices');
