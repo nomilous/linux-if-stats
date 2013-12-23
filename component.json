@@ -10,7 +10,7 @@
   "main": "index.js",
   "scripts": [
     "index.js",
-    "lib/device.js"
+    "lib/devices.js"
   ],
   "inject": {
     "alias": "ifStats"
