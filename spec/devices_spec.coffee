@@ -1,4 +1,14 @@
-{ipso, original, tag} = require 'ipso'
+process.platform = 'linux'
+
+{ipso, original, tag, define} = require 'ipso'
+
+#
+# TODO: this is a bit of a mission
+#       fix ipso to always walk componets dir, if present
+#
+
+define q: -> require process.cwd() + '/components/techjacker-q/q'
+
 
 describe 'Devices', -> 
 

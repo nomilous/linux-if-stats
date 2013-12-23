@@ -1,5 +1,8 @@
 fs = require 'fs'
 {EOL} = require 'os'
+q = require 'q'
+
+console.log Q: q
 
 ###
 
@@ -28,21 +31,21 @@ local
 * accessable for testing via `.test()`
 * obviously therefore also accessable in general (if used, expect no consistancy between versions)
 
-`local.reading`  - contains the latest reading from /proc/net/dev
-`local.interval` - the interval of reading taking
-`local.timer`    - the running timer loop reference
-`local.polling`  - the poll is currently active
-`local.poke`     - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
-`remote.fondle`  - not yet implemented on facebook, but just you wait...
+`local.supported`    - platform is linux
+`local.pollingError` - undefined unless the last poll errored
+`local.reading`      - contains the latest reading from /proc/net/dev
+`local.interval`     - the interval of reading taking
+`local.timer`        - the running timer loop reference
+`local.polling`      - the poll is currently active
+`local.poke`         - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
+`remote.fondle`      - not yet implemented on facebook, but just you wait...
 
 ###
 
 local = 
 
-    supported: true     # set to false on missing /proc/net/dev when discovered so
-                        # TODO: more actively verify supported platform and behave accordingly
-                        #       posibility of error on reading procfile something other that
-                        #       it's missing, therefore supported, and something else is wrong
+    supported: process.platform is 'linux'
+    pollingError: undefined
     reading:  {}
     interval: 1000
     timer:    undefined
@@ -52,7 +55,9 @@ local =
 
         #
         # * TODO: if the first call to current() happens before the first poll
-        #         then things don't go quite as planned... fix
+        #         then things don't go quite as planned... 
+        # 
+        #         pending fix, start() is promised, dont call this until start resolves
         #
 
         #
@@ -68,13 +73,13 @@ local =
             platform = process.platform
             error = new Error "Platform unsupported, expected: linux, got: #{platform}"
                             #
-                            # * vertex might not handle this porperly yet cant recall, find out later
-                            # * other problems with procfile cause 'expected: linux, got: linux'
-                            # 
+                            # * vertex might not handle this properly yet, cant recall, find out later
+                            #
 
         return callback error, local.reading if typeof callback is 'function'
         throw error unless local.supported
         return local.reading
+
 
     poll: -> 
 
@@ -90,20 +95,19 @@ local =
 
         #
         # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
+        # VERIFIED:   cat /etc/lsb-release | grep DESCRIPTION
+        # 
+        # * DISTRIB_DESCRIPTION="Ubuntu 12.04.3 LTS"
         #
 
         try data = fs.readFileSync '/proc/net/dev', 'utf8'
         catch error
 
-            #
-            # seems like /proc/net/dev is readable by all
-            # so this happens only on missing file a.k.a unsupported
-            # 
-
-            local.supported = false
+            local.pollingError = error
             local.polling = false
             return
 
+        local.pollingError = undefined
         data.split( EOL )[2..].map (line) -> 
 
             return if line.match /^\s*$/
@@ -156,6 +160,11 @@ local =
 
 
     start: -> 
+
+        #
+        # TODO: promise this, resolve after first poll
+        #                     reject on unsupported platform
+        #
 
         return if alreadyRunning = local.timer?
         local.timer = setInterval local.poll, local.interval
