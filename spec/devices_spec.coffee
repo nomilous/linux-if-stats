@@ -19,6 +19,7 @@ describe 'Devices', ->
                  face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
                   eth0: 683321528  714240    0    0    0     0          0         0 138555453  347991    0    0    0     0       0          0
                     lo: 95110463   32919    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
+                
                 """ 
 
             #

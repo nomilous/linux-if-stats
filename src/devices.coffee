@@ -92,7 +92,7 @@ local =
         # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
         #
 
-        try data = fs.readFileSync '/proc/net/dev'
+        try data = fs.readFileSync '/proc/net/dev', 'utf8'
         catch error
 
             #
@@ -105,6 +105,8 @@ local =
             return
 
         data.split( EOL )[2..].map (line) -> 
+
+            return if line.match /^\s*$/
 
             [ignore, iface, readings] = line.match /\s*(.*)\:(.*)/
 
