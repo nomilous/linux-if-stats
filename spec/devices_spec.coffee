@@ -4,7 +4,7 @@ process.platform = 'linux'
 
 #
 # TODO: this is a bit of a mission
-#       fix ipso to always walk componets dir, if present
+#       MAYBE: fix ipso to always walk componets dir, if present
 #
 
 define q: -> require process.cwd() + '/components/techjacker-q/q'
