@@ -5,7 +5,6 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "techjacker/q": "*"
   },
   "development": {},
   "license": "MIT",

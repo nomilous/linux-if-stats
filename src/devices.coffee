@@ -1,15 +1,6 @@
 fs = require 'fs'
 {EOL} = require 'os'
 
-#
-# q is installed as component
-# requires alias to function
-# see ipso/README.components.md
-#
-
-q = require 'q'
-
-
 ###
 
 realized
