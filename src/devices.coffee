@@ -215,7 +215,14 @@ local =
         #   promises and callback in the module will confuse
         #
 
-        results = {}
+        results = 
+            polling: local.timer?
+            interval:
+                value: local.interval
+                changed: false
+                previous: null
+
+
 
         for key of params
 
@@ -225,12 +232,14 @@ local =
 
                 try 
 
-                    oldVal = local.interval
-                    local.interval = parseInt params[key]
-                    results[key]   = changed: true
-                    results[key].oldVal  = oldVal
-                    results[key].newVal  = local.interval
-                    results[key].running = false
+                    continue unless local.interval != params[key]
+
+                    previous              = local.interval
+                    local.interval        = parseInt params[key]
+
+                    results[key].changed  = true
+                    results[key].value    = local.interval
+                    results[key].previous = previous
 
                     #
                     # * needs a restart on the new interval if running
@@ -241,7 +250,7 @@ local =
 
                         local.stop()
                         local.start()
-                        results[key].running = true
+
 
         if typeof callback is 'function' then callback null, results
 

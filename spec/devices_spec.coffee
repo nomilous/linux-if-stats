@@ -4,7 +4,7 @@ process.platform = 'linux'
 
 describe 'Devices', -> 
 
-    before ipso -> 
+    before -> 
 
         #
         # stub component/emitter
@@ -58,6 +58,11 @@ describe 'Devices', ->
                 setTimeout (=>
 
                     Devices.stop()
+
+                    #
+                    # second timeout (below) ensures it stopped
+                    #
+
                     (@readings < 6).should.equal true
 
                     Devices.counters().eth0.should.eql 
@@ -80,21 +85,16 @@ describe 'Devices', ->
                         txCarrier: 0
                         txCompressed: 0
 
-                ), 40   # time for four readings
-                        # ocasionally only 3... ? 
+                ), 40 
 
 
                 setTimeout (=> 
 
-                    #
-                    # it should have been stopped at 3 readings
-                    #
-
                     should.not.exist local.timer
-                    @readings.should.equal 4
+                    (@readings < 6).should.equal true
                     facto()
 
-                ), 100 # time for 9 readings
+                ), 100 # time for 10(ish) readings
 
 
     it 'rejects the start promise on unsupported platform', 
@@ -192,12 +192,13 @@ describe 'Devices', ->
                     
                     res.should.eql 
 
+                        polling: true
+                        
                         interval:
-
-                            changed: true
-                            oldVal: 3000
-                            newVal: 2000
-                            running: true
+                            changed:  true
+                            value:    2000
+                            previous: 3000
+                            
 
                     facto()
 
