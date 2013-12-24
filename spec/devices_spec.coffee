@@ -177,12 +177,11 @@ describe 'Devices', ->
 
     it 'publishes poll event on poll', 
 
-        ipso (facto, emitterInstance, local) -> 
+        ipso (emitterInstance, local) -> 
 
-            emitterInstance.does emit: (event) -> 
+            emitterInstance.does 
 
-                event.should.equal 'poll'
-                facto()
+                emit: (event) -> event.should.equal 'poll'
 
             local.poll()
 
