@@ -148,7 +148,6 @@ describe 'Devices', ->
 
             facto help: 'dunno how to test this one'
 
-
     it 'can reset the polling interval while running', 
 
         ipso (facto, Devices, local) -> 
@@ -176,7 +175,7 @@ describe 'Devices', ->
                 facto()
 
 
-    it 'calls back with result if callback provided', 
+    it 'calls back with config result if callback provided', 
 
         #
         # this one's a little up-in-the-air re shape and size of response
@@ -193,14 +192,34 @@ describe 'Devices', ->
                     res.should.eql 
 
                         polling: true
-                        
+
                         interval:
-                            changed:  true
                             value:    2000
+                            changed:  true
                             previous: 3000
                             
-
                     facto()
+
+
+    it 'calls back with running config even if no change', 
+
+        ipso (facto, Devices) -> 
+
+            Devices.stop()
+            Devices.config {}, (err, res) -> 
+
+                res.should.eql 
+
+                        polling: false
+
+                        interval:
+                            value:    2000
+                            changed:  false
+                            previous: null
+                            
+                    facto()
+
+
 
 
 
