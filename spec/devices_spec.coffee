@@ -210,14 +210,14 @@ describe 'Devices', ->
 
                 res.should.eql 
 
-                        polling: false
+                    polling: false
 
-                        interval:
-                            value:    2000
-                            changed:  false
-                            previous: null
-                            
-                    facto()
+                    interval:
+                        value:    2000
+                        changed:  false
+                        previous: null
+                        
+                facto()
 
 
 
