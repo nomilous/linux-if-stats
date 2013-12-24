@@ -272,37 +272,53 @@ describe 'Devices', ->
                 facto()
 
 
-    it 'calls back with config result if callback provided', 
+    it 'calls back with config change result if callback provided', 
 
         #
         # this one's a little up-in-the-air re shape and size of response
         # specifically: error code other than 200 for vertex call on failure
         # 
 
-        ipso (facto, Devices) -> 
+        ipso (facto, Devices, local) -> 
 
-            Devices.config interval: 3000
+            local.interval      = 1001
+            local.historyLength = 1002
+
             Devices.start().then -> 
 
-                Devices.config interval: 2000, (err, res) -> 
+                Devices.config 
+
+                    interval: 2000  # change polling interval
+                    history:  1969  # change history length
+
+                    (err, res) -> 
                     
-                    res.should.eql 
+                        res.should.eql 
 
-                        polling: true
+                            polling: true
 
-                        interval:
-                            value:    2000
-                            changed:  true
-                            previous: 3000
-                            
-                    facto()
+                            interval:
+                                value:    2000
+                                changed:  true
+                                previous: 1001
+
+                            history:
+                                value:    1969
+                                changed:  true
+                                previous: 1002
+
+
+                        facto()
 
 
     it 'calls back with running config even if no change', 
 
-        ipso (facto, Devices) -> 
+        ipso (facto, local, Devices) -> 
 
             Devices.stop()
+
+            local.interval      = 1001
+            local.historyLength = 1002
             Devices.config {}, (err, res) -> 
 
                 res.should.eql 
@@ -310,7 +326,12 @@ describe 'Devices', ->
                     polling: false
 
                     interval:
-                        value:    2000
+                        value:    1001
+                        changed:  false
+                        previous: null
+
+                    history:
+                        value:    1002
                         changed:  false
                         previous: null
                         

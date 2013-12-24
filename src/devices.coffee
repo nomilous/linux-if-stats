@@ -39,15 +39,20 @@ local
 * accessable for testing via `.test()`
 * obviously therefore also accessable in general (if used, expect no consistancy between versions)
 
-`local.supported`    - platform is linux
-`local.pollingError` - undefined unless the last poll errored
-`local.reading`      - contains the latest reading from /proc/net/dev
-`local.interval`     - the interval of reading taking
-`local.timer`        - the running timer loop reference
-`local.polling`      - the poll is currently active
-`local.emitter`      - emits: 'poll' with latest counter values
-`local.poke`         - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
-`remote.fondle`      - not yet implemented on facebook, but just you wait...
+`local.supported`      - platform is linux
+`local.pollingError`   - undefined unless the last poll errored
+`local.reading`        - contains the latest reading from /proc/net/dev
+`local.interval`       - the interval of reading taking
+`local.timer`          - the running timer loop reference
+`local.polling`        - the poll is currently active
+`local.historyLength`  - keeps a history of readings
+`local.history`        - Cambrian was fun, from an evolutionary progress prespective
+                       - Also, i don't see much reason why range triggering can't be performed at the monitor agent
+                       - Certainly lightens the load at the core
+`local.emitter`        - emits 'counters' event with latest counter values at each poll
+                       - emits 'deltas' event including pollspan (milliseconds) at each poll
+`local.poke`           - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
+`remote.fondle`        - not yet implemented on facebook, but just you wait...
 
 ###
 
@@ -59,6 +64,7 @@ local =
     interval: 1000
     timer:    undefined
     polling:  false
+    historyLength: 500 # thumbsuck
     emitter:  new Emitter
 
     counters: (opts, callback) ->
@@ -226,35 +232,53 @@ local =
                 value: local.interval
                 changed: false
                 previous: null
-
+            history: 
+                value: local.historyLength
+                changed: false
+                previous: null
 
 
         for key of params
 
-            if key is 'interval'
+            switch key
 
-                results[key] = changed: false
+                when 'interval'
 
-                try 
+                    try 
 
-                    continue unless local.interval != params[key]
+                        continue unless local.interval != params[key]
 
-                    previous              = local.interval
-                    local.interval        = parseInt params[key]
+                        previous              = local.interval
+                        local.interval        = parseInt params[key]
 
-                    results[key].changed  = true
-                    results[key].value    = local.interval
-                    results[key].previous = previous
+                        results[key].changed  = true
+                        results[key].value    = local.interval
+                        results[key].previous = previous
 
-                    #
-                    # * needs a restart on the new interval if running
-                    # * if not running, it still wont be after this
-                    #
+                        #
+                        # * needs a restart on the new interval if running
+                        # * if not running, it still wont be after this
+                        #
 
-                    if local.timer?
+                        if local.timer?
 
-                        local.stop()
-                        local.start()
+                            local.stop()
+                            local.start()
+
+                when 'history'
+
+                    try 
+
+                        continue unless local.historyLength != params[key]
+
+                        previous              = local.historyLength
+                        local.historyLength   = parseInt params[key]
+
+                        results[key].changed  = true
+                        results[key].value    = local.historyLength
+                        results[key].previous = previous
+
+
 
 
         if typeof callback is 'function' then callback null, results
