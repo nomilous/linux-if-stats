@@ -70,8 +70,9 @@ local =
             platform = process.platform
             error = new Error "Platform unsupported, expected: linux, got: #{platform}"
                             #
-                            # * vertex might not handle this properly yet, cant recall, find out later
+                            # * vertex does not handle this properly yet
                             #
+            console.log error
 
         return callback error, local.reading if typeof callback is 'function'
         throw error unless local.supported
