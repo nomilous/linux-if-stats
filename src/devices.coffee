@@ -51,6 +51,7 @@ local
                        - Certainly lightens the load at the core
 `local.emitter`        - emits 'counters' event with latest counter values at each poll
                        - emits 'deltas' event including pollspan (milliseconds) at each poll
+                       - IMPORTANT, poller skips if it catches it's tail
 `local.poke`           - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
 `remote.fondle`        - not yet implemented on facebook, but just you wait...
 
@@ -107,7 +108,7 @@ local =
         # this stops the birthdays piling up
         #
 
-        return if local.polling
+        return if local.polling 
         local.polling = true
 
         #
@@ -246,7 +247,7 @@ local =
 
                     try 
 
-                        continue unless local.interval != params[key]
+                        continue if local.interval == params[key]
 
                         previous              = local.interval
                         local.interval        = parseInt params[key]
@@ -269,7 +270,7 @@ local =
 
                     try 
 
-                        continue unless local.historyLength != params[key]
+                        continue if local.historyLength == params[key]
 
                         previous              = local.historyLength
                         local.historyLength   = parseInt params[key]
