@@ -35,7 +35,9 @@ describe 'Devices', ->
             emitterInstance: Devices.test().emitter
 
 
-        @pollCount = 0
+        @pollCount   = 0
+        @incrBytes   = 0
+        @incrPackets = 0
 
         fs.does readFileSync: (filename) => 
 
@@ -43,18 +45,30 @@ describe 'Devices', ->
                 
                 @pollCount++
 
+                #
+                # return a mock reading from /proc/net/dev
+                # ----------------------------------------
+                # 
+                # * notice the incrementing counters rxBytes and rxPackets on 'lo' device
+                #
+
                 return """
                 Inter-|   Receive                                                |  Transmit
                  face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
                   eth0: 683321528  714240    0    0    0     0          0         0 138555453  347991    0    0    0     0       0          0
-                    lo: 95110463   32919    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
+                    lo: #{@incrBytes += 1024 * 10}   #{@incrPackets += 10}    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
                 
                 """ 
 
             #
-            # otherwise run original readFileSync (module loader needs it)
+            # return original( arguments )
+            # ----------------------------
             #
+            # * just incase something else in the test would like to fs.readFileSync()
+            #   in a manner that actually works as intended.
+            # 
 
+            console.log file: filename
             original arguments
 
 
@@ -207,6 +221,7 @@ describe 'Devices', ->
                         facto()
 
             local.poll()
+
 
     it 'publishes "deltas" event on poll',
 
