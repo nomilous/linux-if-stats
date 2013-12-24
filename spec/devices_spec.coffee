@@ -52,13 +52,13 @@ describe 'Devices', ->
         ipso (facto, Devices, local, should) -> 
 
             @readings = 0
-            local.interval = 10
+            local.interval = 10  # fast, for testing
             Devices.start().then => 
 
                 setTimeout (=>
 
                     Devices.stop()
-                    (@readings < 4).should.equal true
+                    (@readings < 5).should.equal true
 
                     Devices.current().eth0.should.eql 
 
@@ -80,8 +80,8 @@ describe 'Devices', ->
                         txCarrier: 0
                         txCompressed: 0
 
-                ), 40   # time for three readings
-                        # ocasionally only 2... ? 
+                ), 40   # time for four readings
+                        # ocasionally only 3... ? 
 
 
                 setTimeout (=> 
@@ -91,10 +91,42 @@ describe 'Devices', ->
                     #
 
                     should.not.exist local.timer
-                    @readings.should.equal 3
+                    @readings.should.equal 4
                     facto()
 
                 ), 100 # time for 9 readings
+
+
+    it 'rejects the start promise on unsupported platform', 
+
+        ipso (facto, Devices, local) -> 
+
+            local.supported = false
+            process.platform = 'darwin'
+            Devices.start().then (->), (err) -> 
+
+                #
+                # reset before possible AssertionException otherwise it never resets
+                #
+
+                local.supported = true
+                process.platform = 'linux'
+
+                err.message.should.equal 'Platform unsupported, expected: linux, got: darwin'
+                facto()
+
+
+    it 'does first poll before resolving the start promise', 
+
+        ipso (facto, Devices, local) -> 
+
+            Devices.stop()
+            polled = false
+            local.does poll: -> polled = true
+            Devices.start().then -> 
+
+                polled.should.equal true
+                facto()
 
 
     it 'does not start if already running', 

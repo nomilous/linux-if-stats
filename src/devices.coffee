@@ -160,18 +160,14 @@ local =
 
     start: deferred (action) -> 
 
-        #
-        # TODO: resolve after first poll
-        #
-
         if not local.supported then return action.reject( 
             new Error "Platform unsupported, expected: linux, got: #{process.platform}"
         )
 
         return action.resolve() if local.timer?  # already running
 
+        local.poll()
         local.timer = setInterval local.poll, local.interval
-
         action.resolve()
 
 
