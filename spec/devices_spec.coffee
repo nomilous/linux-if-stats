@@ -44,7 +44,7 @@ describe 'Devices', ->
         ipso (Devices, local) -> 
 
             local.reading = eth0: rxBytes: 0
-            Devices.current().should.eql eth0: rxBytes: 0
+            Devices.counters().should.eql eth0: rxBytes: 0
 
 
     it 'can start and stop polling', 
@@ -58,9 +58,9 @@ describe 'Devices', ->
                 setTimeout (=>
 
                     Devices.stop()
-                    (@readings < 5).should.equal true
+                    (@readings < 6).should.equal true
 
-                    Devices.current().eth0.should.eql 
+                    Devices.counters().eth0.should.eql 
 
                         rxBytes: 683321528
                         rxPackets: 714240

@@ -15,11 +15,20 @@ realized
 * the music stops
 * everybody either gets a chair, or bangs their head
 
+
 moral of the story
 ------------------
 
 * outside should not poll
 * TODO: inside should publish events
+
+
+realize (cont)
+--------------
+
+* most of the functionality here should be in a superclass, it will be repeated
+* not so far fetched wanting to tinker with iface aliases, vlans, and such over a web api
+* esp. eg. setting up a private vlan from some appserver vm onto some other dbserver vm on the fly
 
 
 local
@@ -49,7 +58,7 @@ local =
     timer:    undefined
     polling:  false
 
-    current: (opts, callback) ->
+    counters: (opts, callback) ->
 
         #
         # * TODO: if the first call to current() happens before the first poll
@@ -249,7 +258,7 @@ web exports
 
 ###
 
-local.current.$www = {}
+local.counters.$www = {}
 local.config.$www = roles: ['admin']
 
 
@@ -263,10 +272,10 @@ module / component exports
 
 module.exports = 
 
-    current: local.current
-    start:   local.start
-    stop:    local.stop
-    config:  local.config
+    counters: local.counters
+    start:    local.start
+    stop:     local.stop
+    config:   local.config
 
 
 
