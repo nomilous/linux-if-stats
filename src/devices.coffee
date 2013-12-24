@@ -166,7 +166,9 @@ local =
             # ASSUMPTION: [Array].map() does not break flow, therefore thigs are ready for emit
             #
 
-            local.emitter.emit 'poll'
+
+            local.emitter.emit 'counters', local.reading
+            local.emitter.emit 'deltas',   'pending'
 
             local.polling = false
 

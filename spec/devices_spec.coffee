@@ -175,13 +175,50 @@ describe 'Devices', ->
             Devices.once()
 
 
-    it 'publishes poll event on poll', 
+    it 'publishes "counters" event on poll', 
 
-        ipso (emitterInstance, local) -> 
+        ipso (facto, emitterInstance, local) -> 
 
             emitterInstance.does 
 
-                emit: (event) -> event.should.equal 'poll'
+                emit: (event, payload) -> 
+
+                    if event is 'counters'
+                
+                        payload.eth0.should.eql
+
+                            rxBytes: 683321528
+                            rxPackets: 714240
+                            rxErrs: 0
+                            rxDrop: 0
+                            xrFifo: 0
+                            rxFrame: 0
+                            rxCompressed: 0
+                            rxMulticast: 0
+                            txBytes: 138555453
+                            txPackets: 347991
+                            txErrs: 0
+                            txDrop: 0
+                            txFifo: 0
+                            txColls: 0
+                            txCarrier: 0
+                            txCompressed: 0
+
+                        facto()
+
+            local.poll()
+
+    it 'publishes "deltas" event on poll',
+
+        ipso (facto, emitterInstance, local) -> 
+
+            emitterInstance.does 
+
+                emit: (event, payload) -> 
+
+                    if event is 'deltas'
+
+                        facto()
 
             local.poll()
 
