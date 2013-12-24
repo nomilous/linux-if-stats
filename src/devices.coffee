@@ -1,4 +1,5 @@
 fs = require 'fs'
+{deferred} = require 'decor'
 {EOL} = require 'os'
 
 ###
@@ -157,15 +158,22 @@ local =
             local.polling = false
 
 
-    start: -> 
+    start: deferred (action) -> 
 
         #
-        # TODO: promise this, resolve after first poll
-        #                     reject on unsupported platform
+        # TODO: resolve after first poll
         #
 
-        return if alreadyRunning = local.timer?
+        if not local.supported then return action.reject( 
+            new Error "Platform unsupported, expected: linux, got: #{process.platform}"
+        )
+
+        return action.resolve() if local.timer?  # already running
+
         local.timer = setInterval local.poll, local.interval
+
+        action.resolve()
+
 
 
     stop: -> 
@@ -195,7 +203,10 @@ local =
         if opts.query? then params = opts.query
 
         #
-        # possibly use a decorator for that little switch-a-roo
+        # TODO: 
+        # * possibly use a decorator for that little switch-a-roo
+        # * vertex exported function to support promise, weird mix of
+        #   promises and callback in the module will confuse
         #
 
         results = {}

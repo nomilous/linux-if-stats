@@ -5,5 +5,8 @@
   "description": "linux-if-stats",
   "devDependencies": {
     "ipso": "0.0.20"
+  },
+  "dependencies": {
+    "decor": "0.0.2"
   }
 }
