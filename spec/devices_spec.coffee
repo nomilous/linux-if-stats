@@ -7,10 +7,14 @@ describe 'Devices', ->
     before -> 
 
         #
-        # stub component/emitter
+        # mock component/emitter instance
         #
 
-        define emitter: ->
+        define emitter: -> Mock( 'emitterInstance' ).with
+            once: ->
+            off: ->
+            on: ->
+
 
     before ipso (fs, Devices) -> 
 
@@ -142,11 +146,24 @@ describe 'Devices', ->
                     facto()
 
 
+    it 'exports pubsub controls', 
+
+        ipso (Devices, emitterInstance) -> 
+
+            Devices.on.should.equal emitterInstance.on
+            Devices.off.should.equal emitterInstance.off
+            Devices.once.should.equal emitterInstance.once
+
+        
+
+
+
     it 'prevents the poll loop from catching its own tail', 
 
         ipso (facto) -> 
 
             facto help: 'dunno how to test this one'
+
 
     it 'can reset the polling interval while running', 
 

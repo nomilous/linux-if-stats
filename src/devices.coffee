@@ -45,6 +45,7 @@ local
 `local.interval`     - the interval of reading taking
 `local.timer`        - the running timer loop reference
 `local.polling`      - the poll is currently active
+`local.emitter`      - emits: 'poll' with latest counter values
 `local.poke`         - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
 `remote.fondle`      - not yet implemented on facebook, but just you wait...
 
@@ -58,6 +59,7 @@ local =
     interval: 1000
     timer:    undefined
     polling:  false
+    emitter:  new Emitter
 
     counters: (opts, callback) ->
 
@@ -164,6 +166,8 @@ local =
             # ASSUMPTION: [Array].map() does not break flow, therefore the lowering of this flag
             #             only occurs after all calls into the mapper
             #
+
+
 
             local.polling = false
 
@@ -286,6 +290,9 @@ module.exports =
     start:    local.start
     stop:     local.stop
     config:   local.config
+    on:       local.emitter.on
+    once:     local.emitter.once
+    off:      local.emitter.off
 
 
 
