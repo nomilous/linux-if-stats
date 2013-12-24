@@ -2,15 +2,15 @@ process.platform = 'linux'
 
 {ipso, original, tag, define} = require 'ipso'
 
-#
-# TODO: this is a bit of a mission
-#       MAYBE: fix ipso to always walk componets dir, if present
-#
-
-define q: -> require process.cwd() + '/components/techjacker-q/q'
-
-
 describe 'Devices', -> 
+
+    before ipso -> 
+
+        #
+        # stub component/emitter
+        #
+
+        define emitter: ->
 
     before ipso (fs, Devices) -> 
 

@@ -5,7 +5,8 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "nomilous/decor": "*"
+    "nomilous/decor": "*",
+    "component/emitter": "*"
   },
   "development": {},
   "license": "MIT",

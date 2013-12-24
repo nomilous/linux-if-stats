@@ -1,4 +1,5 @@
 fs = require 'fs'
+Emitter = require 'emitter'
 {deferred} = require 'decor'
 {EOL} = require 'os'
 
