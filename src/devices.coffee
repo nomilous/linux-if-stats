@@ -163,11 +163,10 @@ local =
 
 
             #
-            # ASSUMPTION: [Array].map() does not break flow, therefore the lowering of this flag
-            #             only occurs after all calls into the mapper
+            # ASSUMPTION: [Array].map() does not break flow, therefore thigs are ready for emit
             #
 
-
+            local.emitter.emit 'poll'
 
             local.polling = false
 
@@ -290,9 +289,9 @@ module.exports =
     start:    local.start
     stop:     local.stop
     config:   local.config
-    on:       local.emitter.on
-    once:     local.emitter.once
-    off:      local.emitter.off
+    on:   ->  local.emitter.on.apply   local.emitter, arguments
+    once: ->  local.emitter.once.apply local.emitter, arguments
+    off:  ->  local.emitter.off.apply  local.emitter, arguments
 
 
 

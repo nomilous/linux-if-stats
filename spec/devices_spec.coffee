@@ -7,26 +7,41 @@ describe 'Devices', ->
     before -> 
 
         #
-        # mock component/emitter instance
+        # alias component/component-emitter instance as 'emitter'
+        # -------------------------------------------------------
+        # 
+        # * This enables the module being tested to require 'emitter' even tho
+        #   it's not an installed node_module
         #
 
-        define emitter: -> Mock( 'emitterInstance' ).with
-            once: ->
-            off: ->
-            on: ->
+        define emitter: -> require process.cwd() + '/components/component-emitter'
 
 
     before ipso (fs, Devices) -> 
 
-        tag local: Devices.test()
+        tag 
 
-        @readings = 0
+            local: Devices.test()
+
+            #
+            # tag the emitter instance
+            # ------------------------
+            # 
+            # * This enables the injection of the 'emitterInstance' into tests
+            # * The injector attaches `.does()` for assignment of function
+            #   expectations in the tests.
+            #
+
+            emitterInstance: Devices.test().emitter
+
+
+        @pollCount = 0
 
         fs.does readFileSync: (filename) => 
 
             if filename is '/proc/net/dev'
                 
-                @readings++
+                @pollCount++
 
                 return """
                 Inter-|   Receive                                                |  Transmit
@@ -55,7 +70,7 @@ describe 'Devices', ->
 
         ipso (facto, Devices, local, should) -> 
 
-            @readings = 0
+            @pollCount = 0
             local.interval = 10  # fast, for testing
             Devices.start().then => 
 
@@ -67,7 +82,7 @@ describe 'Devices', ->
                     # second timeout (below) ensures it stopped
                     #
 
-                    (@readings < 6).should.equal true
+                    (@pollCount < 6).should.equal true
 
                     Devices.counters().eth0.should.eql 
 
@@ -95,10 +110,10 @@ describe 'Devices', ->
                 setTimeout (=> 
 
                     should.not.exist local.timer
-                    (@readings < 6).should.equal true
+                    (@pollCount < 6).should.equal true
                     facto()
 
-                ), 100 # time for 10(ish) readings
+                ), 100 # time for 10(ish) pollCounts
 
 
     it 'rejects the start promise on unsupported platform', 
@@ -150,12 +165,26 @@ describe 'Devices', ->
 
         ipso (Devices, emitterInstance) -> 
 
-            Devices.on.should.equal emitterInstance.on
-            Devices.off.should.equal emitterInstance.off
-            Devices.once.should.equal emitterInstance.once
+            emitterInstance.does 
+                once: ->
+                off: ->
+                on: -> 
 
-        
+            Devices.on()
+            Devices.off()
+            Devices.once()
 
+
+    it 'publishes poll event on poll', 
+
+        ipso (facto, emitterInstance, local) -> 
+
+            emitterInstance.does emit: (event) -> 
+
+                event.should.equal 'poll'
+                facto()
+
+            local.poll()
 
 
     it 'prevents the poll loop from catching its own tail', 
