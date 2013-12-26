@@ -41,18 +41,21 @@ local
 * obviously therefore also accessable in general (if used, expect no consistancy between versions)
 
 `local.supported`      - platform is linux
+`local.metrics`        - expected counters for each device listed in /proc/net/dev
+`local.pollingActive`  - a poll is currently in process
 `local.pollingError`   - undefined unless the last poll errored
+
 `local.reading`        - contains the latest reading from /proc/net/dev
 `local.interval`       - the interval of reading taking
 `local.timer`          - the running timer loop reference
-`local.polling`        - the poll is currently active
+
 `local.pollTimestamp   - the most recen poll timestamp
 `local.historyLength`  - keeps a history of readings
 `local.history`        - Cambrian was fun, from an evolutionary progress prespective
                        - Also, i don't see much reason why range triggering can't be performed at the monitor agent
                        - Certainly lightens the load at the core
                        - First element in the history [] is the oldest
-                       - Each element contains [timespan, reading] where timespan is milliseconds since the preceding reading
+                       - Each element contains [timespan, reading] where timespan is milliseconds that elapsed till the next reading reading
 `local.emitter`        - emits 'counters' event with latest counter values at each poll
                        - emits 'deltas' event including pollspan (milliseconds) at each poll
                        - IMPORTANT, poller skips if it catches it's tail
@@ -64,11 +67,34 @@ local
 local = 
 
     supported: process.platform is 'linux'
+    metrics: [
+
+        'rxBytes'
+        'rxPackets'
+        'rxErrs'
+        'rxDrop'
+        'rxFifo'
+        'rxFrame'
+        'rxCompressed'
+        'rxMulticast'
+
+        'txBytes'
+        'txPackets'
+        'txErrs'
+        'txDrop'
+        'txFifo'
+        'txColls'
+        'txCarrier'
+        'txCompressed'
+    ]
+
+    pollingActive: false
     pollingError: undefined
+
+    
     reading:  {}
     interval: 1000
     timer:    undefined
-    polling:  false
     historyLength: 500 # thumbsuck
     history:  []
     emitter:  new Emitter
@@ -113,8 +139,8 @@ local =
         # this stops the birthdays piling up
         #
 
-        return if local.polling
-        local.polling = true
+        return if local.pollingActive
+        local.pollingActive = true
 
 
         #
@@ -126,13 +152,13 @@ local =
         if local.pollTimestamp? 
 
             timespan = now - local.pollTimestamp
-            local.history.push [ timespan, dcopy(local.reading) ]
+            previous = dcopy local.reading
 
+            local.history.push [ timespan, previous ]
             local.history.shift() while local.history.length > local.historyLength
 
         local.pollTimestamp = now
         
-
 
         #
         # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
@@ -145,7 +171,7 @@ local =
         catch error
 
             local.pollingError = error
-            local.polling = false
+            local.pollingActive = false
             return
 
         local.pollingError = undefined
@@ -155,27 +181,11 @@ local =
 
             [ignore, iface, readings] = line.match /\s*(.*)\:(.*)/
 
+            
+            keys = local.metrics
+            i    = -1
             local.reading[iface] ||= {}
 
-            keys = [ 
-                'ignore'   # first item in match is the input string
-                'rxBytes'
-                'rxPackets'
-                'rxErrs'
-                'rxDrop'
-                'xrFifo'
-                'rxFrame'
-                'rxCompressed'
-                'rxMulticast'
-                'txBytes'
-                'txPackets'
-                'txErrs'
-                'txDrop'
-                'txFifo'
-                'txColls'
-                'txCarrier'
-                'txCompressed'
-            ]
 
             readings.match( 
 
@@ -183,23 +193,19 @@ local =
 
             ).map (value) -> 
 
-                key = keys.shift()
-                return if key is 'ignore'
-
-                                            #
-                                            # possibly hazardous
-                                            #
+                return unless key = keys[i++]
                 local.reading[iface][key] = parseInt value
+
 
 
             #
             # ASSUMPTION: [Array].map() does not break flow, therefore thigs are ready for emit
             #
 
-            local.emitter.emit 'counters', local.reading, now
-            local.emitter.emit 'deltas',   'pending'
 
-            local.polling = false
+            local.emitter.emit 'counters', local.reading, now
+
+            local.pollingActive = false
 
 
     start: deferred (action) -> 

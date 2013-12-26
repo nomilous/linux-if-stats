@@ -61,7 +61,7 @@ describe 'Devices', ->
                 return """
                 Inter-|   Receive                                                |  Transmit
                  face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
-                  eth0: 683321528  714240    0    0    0     0          0         0 138555453  347991    0    0    0     0       0          0
+                  eth0: 683321528  714240    0    0    0     0          0         1 138555453  347991    0    0    0     0       0          2
                     lo: #{@currentBytes += @incrBytes}   #{@currentPackets += @incrPackets}    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
                 
                 """ 
@@ -110,10 +110,10 @@ describe 'Devices', ->
                         rxPackets: 714240
                         rxErrs: 0
                         rxDrop: 0
-                        xrFifo: 0
+                        rxFifo: 0
                         rxFrame: 0
                         rxCompressed: 0
-                        rxMulticast: 0
+                        rxMulticast: 1
 
                         txBytes: 138555453
                         txPackets: 347991
@@ -122,7 +122,7 @@ describe 'Devices', ->
                         txFifo: 0
                         txColls: 0
                         txCarrier: 0
-                        txCompressed: 0
+                        txCompressed: 2
 
                 ), 40 
 
@@ -251,22 +251,22 @@ describe 'Devices', ->
 
             emitterInstance.does 
 
-                emit: (event, payload, timestamp) -> 
+                emit: (event, counters, timestamp) -> 
 
                     if event is 'counters'
 
                         timestamp.should.be.an.instanceof Date
                 
-                        payload.eth0.should.eql
+                        counters.eth0.should.eql
 
                             rxBytes: 683321528
                             rxPackets: 714240
                             rxErrs: 0
                             rxDrop: 0
-                            xrFifo: 0
+                            rxFifo: 0
                             rxFrame: 0
                             rxCompressed: 0
-                            rxMulticast: 0
+                            rxMulticast: 1
                             txBytes: 138555453
                             txPackets: 347991
                             txErrs: 0
@@ -274,26 +274,29 @@ describe 'Devices', ->
                             txFifo: 0
                             txColls: 0
                             txCarrier: 0
-                            txCompressed: 0
+                            txCompressed: 2
 
                         facto()
 
             local.poll()
 
 
-    it 'publishes "deltas" event on poll',
+    xit 'publishes "deltas" event on poll',
 
         ipso (facto, emitterInstance, local) -> 
 
+            local.poll()
+
             emitterInstance.does 
 
-                emit: (event, payload) -> 
+                emit: (event, deltas, timespan) -> 
 
                     if event is 'deltas'
 
                         facto()
 
-            local.poll()
+
+            setTimeout local.poll, 100
 
 
     it 'prevents the poll loop from catching its own tail', 

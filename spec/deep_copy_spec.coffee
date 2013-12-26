@@ -19,7 +19,7 @@ describe 'Which is faster', ->
                 'MAGNETIC FIELD ESTABLISHED': '-3,500,000,000'
                 'EARLIEST KNOWN BACTERIA': '-3,460,000,000'
                 mesoarchean: '-3,100,000,000'
-                'VAALBARA': '3,100,000,000'
+                'VAALBARA': '-3,100,000,000'
                 neoarchean: '-2,750,000,000'
             proterozoic: 
                 paleoproterozoic: '-2,500,000,000'
