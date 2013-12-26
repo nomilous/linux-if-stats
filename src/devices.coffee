@@ -41,15 +41,7 @@ local
 * obviously therefore also accessable in general (if used, expect no consistancy between versions)
 
 
-`local.reading`        - contains the latest reading from /proc/net/dev
 
-`local.pollTimestamp   - the most recen poll timestamp
-
-`local.history`        - Cambrian was fun, from an evolutionary progress prespective
-                       - Also, i don't see much reason why range triggering can't be performed at the monitor agent
-                       - Certainly lightens the load at the core
-                       - First element in the history [] is the oldest
-                       - Each element contains [timespan, reading] where timespan is milliseconds that elapsed till the next reading reading
 `local.emitter`        - emits 'counters' event with latest counter values at each poll
                        - emits 'deltas' event including pollspan (milliseconds) at each poll
                        - IMPORTANT, poller skips if it catches it's tail
@@ -88,13 +80,16 @@ local =
     pollInterval:   1000                    # * the interval between polls
     pollHistory:    500 # thumbsuck         # * length of the buffer containing recent polls
 
+                                            # 
+    buffer:         []                      # accumulated poll data
+                                            # ---------------------
+                                            # 
+                                            # * first element is the most recent reading
+                                            # * element contains [data, timestamp]
 
 
-    reading:  {}
-
-    
-    history:  []
     emitter:  new Emitter
+
 
     counters: (opts, callback) ->
 
@@ -122,9 +117,15 @@ local =
                             #
             console.log error
 
-        return callback error, local.reading if typeof callback is 'function'
+        [data, timestamp] = local.buffer[0]
+
+        result = 
+            data: data
+            at: timestamp
+
+        return callback error, result if typeof callback is 'function'
         throw error unless local.supported
-        return local.reading
+        return result
 
 
     poll: -> 
@@ -139,24 +140,6 @@ local =
         return if local.pollActive
         local.pollActive = true
 
-
-        #
-        # previous reading into history
-        # -----------------------------
-        #
-
-        now = new Date
-        if local.pollTimestamp? 
-
-            timespan = now - local.pollTimestamp
-            previous = dcopy local.reading
-
-            local.history.push [ timespan, previous ]
-            local.history.shift() while local.history.length > local.pollHistory
-
-        local.pollTimestamp = now
-        
-
         #
         # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
         # VERIFIED:   cat /etc/lsb-release | grep DESCRIPTION
@@ -164,7 +147,11 @@ local =
         # * DISTRIB_DESCRIPTION="Ubuntu 12.04.3 LTS"
         #
 
-        try data = fs.readFileSync '/proc/net/dev', 'utf8'
+        now     = new Date
+        data    = {}
+        reading = [data, now]
+
+        try source = fs.readFileSync '/proc/net/dev', 'utf8'
         catch error
 
             local.pollError  = error
@@ -172,37 +159,32 @@ local =
             return
 
         local.pollError = undefined
-        data.split( EOL )[2..].map (line) -> 
+        source.split( EOL )[2..].map (line) -> 
 
             return if line.match /^\s*$/
-
             [ignore, iface, readings] = line.match /\s*(.*)\:(.*)/
 
-            
-            keys = local.metrics
-            i    = -1
-            local.reading[iface] ||= {}
-
+            keys    = local.metrics
+            i       = -1
+            metrics = data[iface] = {}
 
             readings.match( 
 
                 /\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)/ 
-
+            
             ).map (value) -> 
 
                 return unless key = keys[i++]
-                local.reading[iface][key] = parseInt value
+                metrics[key] = parseInt value
 
 
 
-            #
-            # ASSUMPTION: [Array].map() does not break flow, therefore thigs are ready for emit
-            #
+        local.buffer.unshift reading
+        local.buffer.pop() while local.buffer.length > local.pollHistory
 
+        local.emitter.emit 'counters', data, now
 
-            local.emitter.emit 'counters', local.reading, now
-
-            local.pollActive = false
+        local.pollActive = false
 
 
     start: deferred (action) -> 
