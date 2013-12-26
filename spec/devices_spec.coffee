@@ -91,7 +91,7 @@ describe 'Devices', ->
         ipso (facto, Devices, local, should) -> 
 
             @pollCount = 0
-            local.interval = 10  # fast, for testing
+            local.pollInterval = 10  # fast, for testing
             Devices.start().then => 
 
                 setTimeout (=>
@@ -129,7 +129,7 @@ describe 'Devices', ->
 
                 setTimeout (=> 
 
-                    should.not.exist local.timer
+                    should.not.exist local.pollTimer
                     (@pollCount < 6).should.equal true
                     facto()
 
@@ -174,10 +174,10 @@ describe 'Devices', ->
 
             Devices.start().then -> 
 
-                timer = local.timer
+                pollTimer = local.pollTimer
                 Devices.start().then -> 
                     
-                    local.timer.should.equal timer
+                    local.pollTimer.should.equal pollTimer
                     facto()
 
 
@@ -207,7 +207,7 @@ describe 'Devices', ->
 
         ipso (local) -> 
 
-            local.historyLength = 3
+            local.pollHistory = 3
             local.poll()
             local.history.length = 0 # flush history array
 
@@ -313,8 +313,8 @@ describe 'Devices', ->
             Devices.start().then -> 
 
                 Devices.config interval: 10000
-                local.interval.should.equal 10000
-                local.timer._idleTimeout.should.equal 10000
+                local.pollInterval.should.equal 10000
+                local.pollTimer._idleTimeout.should.equal 10000
                 facto()
 
 
@@ -324,12 +324,12 @@ describe 'Devices', ->
 
             Devices.stop()
             Devices.config interval: 3000
-            local.interval.should.equal 3000
-            should.not.exist local.timer
+            local.pollInterval.should.equal 3000
+            should.not.exist local.pollTimer
 
             Devices.start().then ->
             
-                local.timer._idleTimeout.should.equal 3000
+                local.pollTimer._idleTimeout.should.equal 3000
                 facto()
 
 
@@ -342,8 +342,8 @@ describe 'Devices', ->
 
         ipso (facto, Devices, local) -> 
 
-            local.interval      = 1001
-            local.historyLength = 1002
+            local.pollInterval = 1001
+            local.pollHistory  = 1002
 
             Devices.start().then -> 
 
@@ -378,8 +378,8 @@ describe 'Devices', ->
 
             Devices.stop()
 
-            local.interval      = 1001
-            local.historyLength = 1002
+            local.pollInterval = 1001
+            local.pollHistory  = 1002
             Devices.config {}, (err, res) -> 
 
                 res.should.eql 

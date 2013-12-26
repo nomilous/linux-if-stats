@@ -40,17 +40,11 @@ local
 * accessable for testing via `.test()`
 * obviously therefore also accessable in general (if used, expect no consistancy between versions)
 
-`local.supported`      - platform is linux
-`local.metrics`        - expected counters for each device listed in /proc/net/dev
-`local.pollingActive`  - a poll is currently in process
-`local.pollingError`   - undefined unless the last poll errored
 
 `local.reading`        - contains the latest reading from /proc/net/dev
-`local.interval`       - the interval of reading taking
-`local.timer`          - the running timer loop reference
 
 `local.pollTimestamp   - the most recen poll timestamp
-`local.historyLength`  - keeps a history of readings
+
 `local.history`        - Cambrian was fun, from an evolutionary progress prespective
                        - Also, i don't see much reason why range triggering can't be performed at the monitor agent
                        - Certainly lightens the load at the core
@@ -67,7 +61,7 @@ local
 local = 
 
     supported: process.platform is 'linux'
-    metrics: [
+    metrics: [                              # * expected counters for each device listed in /proc/net/dev
 
         'rxBytes'
         'rxPackets'
@@ -88,14 +82,17 @@ local =
         'txCompressed'
     ]
 
-    pollingActive: false
-    pollingError: undefined
+    pollTimer:      undefined               # * polling setInterval() reference, undefined if not running
+    pollActive:     false                   # * a poll is currently in process
+    pollError:      undefined    # unused   # * undefined unless the last poll errored
+    pollInterval:   1000                    # * the interval between polls
+    pollHistory:    500 # thumbsuck         # * length of the buffer containing recent polls
+
+
+
+    reading:  {}
 
     
-    reading:  {}
-    interval: 1000
-    timer:    undefined
-    historyLength: 500 # thumbsuck
     history:  []
     emitter:  new Emitter
 
@@ -139,8 +136,8 @@ local =
         # this stops the birthdays piling up
         #
 
-        return if local.pollingActive
-        local.pollingActive = true
+        return if local.pollActive
+        local.pollActive = true
 
 
         #
@@ -155,7 +152,7 @@ local =
             previous = dcopy local.reading
 
             local.history.push [ timespan, previous ]
-            local.history.shift() while local.history.length > local.historyLength
+            local.history.shift() while local.history.length > local.pollHistory
 
         local.pollTimestamp = now
         
@@ -170,11 +167,11 @@ local =
         try data = fs.readFileSync '/proc/net/dev', 'utf8'
         catch error
 
-            local.pollingError = error
-            local.pollingActive = false
+            local.pollError  = error
+            local.pollActive = false
             return
 
-        local.pollingError = undefined
+        local.pollError = undefined
         data.split( EOL )[2..].map (line) -> 
 
             return if line.match /^\s*$/
@@ -205,7 +202,7 @@ local =
 
             local.emitter.emit 'counters', local.reading, now
 
-            local.pollingActive = false
+            local.pollActive = false
 
 
     start: deferred (action) -> 
@@ -214,18 +211,18 @@ local =
             new Error "Platform unsupported, expected: linux, got: #{process.platform}"
         )
 
-        return action.resolve() if local.timer?  # already running
+        return action.resolve() if local.pollTimer?  # already running
 
         local.poll()
-        local.timer = setInterval local.poll, local.interval
+        local.pollTimer = setInterval local.poll, local.pollInterval
         action.resolve()
 
 
 
     stop: -> 
 
-        clearInterval local.timer
-        local.timer = undefined
+        clearInterval local.pollTimer
+        local.pollTimer = undefined
 
 
     ###
@@ -234,8 +231,8 @@ local =
     -------------------
 
     * this config() function can be exported on a running vertex (see web exports below)
-    * web hit: `config?interval=10000` will call the function with `opts.query.interval`
-    * obviously having to pass opts.query.interval would seem a bit obtuse for local use, 
+    * web hit: `config?pollInterval=10000` will call the function with `opts.query.interval`
+    * obviously having to pass opts.query.pollInterval would seem a bit obtuse for local use, 
       so the function does a bit of juggling about that
     * admittedly this need could be considered a bit of a design wrinkle
         * missing:  Alternative
@@ -256,13 +253,13 @@ local =
         #
 
         results = 
-            polling: local.timer?
+            polling: local.pollTimer?
             interval:
-                value: local.interval
+                value: local.pollInterval
                 changed: false
                 previous: null
             history: 
-                value: local.historyLength
+                value: local.pollHistory
                 changed: false
                 previous: null
 
@@ -275,21 +272,21 @@ local =
 
                     try 
 
-                        continue if local.interval == params[key]
+                        continue if local.pollInterval == params[key]
 
-                        previous              = local.interval
-                        local.interval        = parseInt params[key]
+                        previous              = local.pollInterval
+                        local.pollInterval    = parseInt params[key]
 
                         results[key].changed  = true
-                        results[key].value    = local.interval
+                        results[key].value    = local.pollInterval
                         results[key].previous = previous
 
                         #
-                        # * needs a restart on the new interval if running
+                        # * needs a restart on the new pollInterval if running
                         # * if not running, it still wont be after this
                         #
 
-                        if local.timer?
+                        if local.pollTimer?
 
                             local.stop()
                             local.start()
@@ -298,13 +295,13 @@ local =
 
                     try 
 
-                        continue if local.historyLength == params[key]
+                        continue if local.pollHistory == params[key]
 
-                        previous              = local.historyLength
-                        local.historyLength   = parseInt params[key]
+                        previous              = local.pollHistory
+                        local.pollHistory     = parseInt params[key]
 
                         results[key].changed  = true
-                        results[key].value    = local.historyLength
+                        results[key].value    = local.pollHistory
                         results[key].previous = previous
 
 
