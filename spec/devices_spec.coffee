@@ -233,7 +233,7 @@ describe 'Devices', ->
             Devices.once()
 
 
-    it 'publishes "poll" event with counters, timestamp, delta and timespan on poll', 
+    it 'publishes "poll" event with counters, timestamp, deltas and timespan on poll', 
 
         ipso (facto, emitterInstance, local) -> 
 
@@ -268,7 +268,7 @@ describe 'Devices', ->
 
                         
                         (timespan < 2).should.equal true
-                        
+
                         delta.lo.should.eql
 
                             rxBytes: 10240

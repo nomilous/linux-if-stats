@@ -18,6 +18,10 @@ IMPORTANT
     * `deltas`    - Hash of counters, differece since preceding poll, null on first poll
     * `timespan`  - milliseconds since last poll, null on first poll
 
+* emits 'error' event with
+
+    * `error` - The error
+
 * start returns promise, resolves after first poll
 
 
@@ -57,7 +61,7 @@ local =
 
     pollTimer:      undefined               # * polling setInterval() reference, undefined if not running
     pollActive:     false                   # * a poll is currently in process
-    pollError:      undefined    # unused   # * undefined unless the last poll errored
+    pollError:      null                    # * null unless the last poll errored
     pollInterval:   1000                    # * the interval between polls
     pollHistory:    500 # thumbsuck         # * length of the buffer containing recent polls
 
@@ -90,38 +94,44 @@ local =
         timespan  = null
 
         try 
+
             [previousCounters, previousTimestamp] = local.buffer[0]
             timespan = timestamp - previousTimestamp
             deltas   = {}
 
         reading = [counters, timestamp, deltas, timespan]
 
-        try source = fs.readFileSync '/proc/net/dev', 'utf8'
+
+        try 
+
+            source = fs.readFileSync '/proc/net/dev', 'utf8'
+            source.split( EOL )[2..].map (line) -> 
+
+                return if line.match /^\s*$/
+                [ignore, iface, readings] = line.match /\s*(.*)\:(.*)/
+
+                keys    = local.metrics
+                i       = -1
+                metrics = counters[iface] = {}
+
+                readings.match( 
+
+                    /\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)/ 
+                
+                ).map (value) -> 
+
+                    return unless key = keys[i++]
+                    metrics[key] = parseInt value
+
         catch error
 
             local.pollError  = error
+            local.emitter.emit 'error', error
             local.pollActive = false
             return
 
-        local.pollError = undefined
-        source.split( EOL )[2..].map (line) -> 
 
-            return if line.match /^\s*$/
-            [ignore, iface, readings] = line.match /\s*(.*)\:(.*)/
-
-            keys    = local.metrics
-            i       = -1
-            metrics = counters[iface] = {}
-
-            readings.match( 
-
-                /\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)\s*(\d*)/ 
-            
-            ).map (value) -> 
-
-                return unless key = keys[i++]
-                metrics[key] = parseInt value
-
+        local.pollError = null
 
         if deltas? 
 
@@ -174,34 +184,48 @@ local =
 
     latest: (opts, callback) ->
 
-        #
-        # responds synchronously or asynchronously
-        # ----------------------------------------
         # 
         # * opts arg is present to support the web export (see below)
         #
 
+        error = local.pollError
 
-        error = null
         unless local.supported 
             platform = process.platform
             error = new Error "Platform unsupported, expected: linux, got: #{platform}"
+            console.log error
                             #
                             # * vertex does not handle this properly yet
                             #
-            console.log error
+            
+        try
 
-        [counters, timestamp, deltas, timespan] = local.buffer[0]
+            [counters, timestamp, deltas, timespan] = local.buffer[0]
+            result = 
+                counters:  counters
+                timestamp: timestamp
+                deltas:    deltas
+                timespan:  timespan
 
-        result = 
-            counters:  counters
-            timestamp: timestamp
-            deltas:    deltas
-            timespan:  timespan
+
+        #
+        # async response
+        # --------------
+        # 
+        # * includes poll error if present AND the latest poll result (if available)
+        # * this means an older poll record will be returned if the most recent polls are erroring
+        # 
 
         return callback error, result if typeof callback is 'function'
+
+
+        #
+        # sync response
+        #
+
         throw error unless local.supported
         return result
+
 
 
     config: (opts, callback) -> 
