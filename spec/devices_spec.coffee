@@ -83,7 +83,8 @@ describe 'Devices', ->
         ipso (Devices, local) -> 
 
             local.poll()
-            Devices.counters().data.eth0.rxBytes.should.equal 683321528
+            Devices.latest().timestamp.should.be.an.instanceof Date
+            Devices.latest().counters.eth0.rxBytes.should.equal 683321528
 
 
     it 'can start and stop polling', 
@@ -104,7 +105,7 @@ describe 'Devices', ->
 
                     (@pollCount < 6).should.equal true
 
-                    Devices.counters().data.eth0.should.eql 
+                    Devices.latest().counters.eth0.should.eql 
 
                         rxBytes: 683321528
                         rxPackets: 714240
@@ -216,18 +217,6 @@ describe 'Devices', ->
 
             local.buffer.length.should.equal 3
 
-            console.log 'todo: timespan'
-
-            # [timespan, {eth0, lo}] = local.history[0]
-            # (@currentBytes - lo.rxBytes).should.equal @incrBytes * 3 # oldest
-
-            # [timespan, {eth0, lo}] = local.history[1]
-            # (@currentBytes - lo.rxBytes).should.equal @incrBytes * 2
-
-            # [timespan, {eth0, lo}] = local.history[2]
-            # (@currentBytes - lo.rxBytes).should.equal @incrBytes * 1
-
-
 
 
     it 'exports pubsub controls', 
@@ -244,15 +233,17 @@ describe 'Devices', ->
             Devices.once()
 
 
-    it 'publishes "counters" event on poll', 
+    it 'publishes "poll" event with counters, timestamp, delta and timespan on poll', 
 
         ipso (facto, emitterInstance, local) -> 
 
+            local.poll()
+
             emitterInstance.does 
 
-                emit: (event, counters, timestamp) -> 
+                emit: (event, counters, timestamp, delta, timespan) -> 
 
-                    if event is 'counters'
+                    if event is 'poll'
 
                         timestamp.should.be.an.instanceof Date
                 
@@ -275,27 +266,32 @@ describe 'Devices', ->
                             txCarrier: 0
                             txCompressed: 2
 
+                        
+                        (timespan < 2).should.equal true
+                        
+                        delta.lo.should.eql
+
+                            rxBytes: 10240
+                            rxPackets: 10
+                            rxErrs: 0
+                            rxDrop: 0
+                            rxFifo: 0
+                            rxFrame: 0
+                            rxCompressed: 0
+                            rxMulticast: 0
+                            txBytes: 0
+                            txPackets: 0
+                            txErrs: 0
+                            txDrop: 0
+                            txFifo: 0
+                            txColls: 0
+                            txCarrier: 0
+                            txCompressed: 0
+
                         facto()
 
             local.poll()
 
-
-    xit 'publishes "deltas" event on poll',
-
-        ipso (facto, emitterInstance, local) -> 
-
-            local.poll()
-
-            emitterInstance.does 
-
-                emit: (event, deltas, timespan) -> 
-
-                    if event is 'deltas'
-
-                        facto()
-
-
-            setTimeout local.poll, 100
 
 
     it 'prevents the poll loop from catching its own tail', 

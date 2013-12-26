@@ -6,47 +6,28 @@ dcopy      = require 'deep-copy'
 
 ###
 
-realized
---------
+IMPORTANT
+--------- 
 
-* internal polling loop per metricset might not be too smart
-* more sensible perhaps for a calling parent loop to manage polling
-* especially since the parent is likely also polling 
-* with the resulting race condition therefore doing the foxtrot
-* or playing musical chairs with itself in the mirror
-* the music stops
-* everybody either gets a chair, or bangs their head
+* poller skips if it catches it's tail
 
+* emits 'poll' event with
 
-moral of the story
-------------------
+    * `counters`  - Hash of counters
+    * `timestamp` - Date
+    * `deltas`    - Hash of counters, differece since preceding poll, null on first poll
+    * `timespan`  - milliseconds since last poll, null on first poll
 
-* outside should not poll
-* TODO: inside should publish events
+* start returns promise, resolves after first poll
 
 
-realize (cont)
---------------
+KNOWN SUPPORTED LIST
+--------------------
 
-* most of the functionality here should be in a superclass, it will be repeated
-* not so far fetched wanting to tinker with iface aliases, vlans, and such over a web api
-* esp. eg. setting up a private vlan from some appserver vm onto some other dbserver vm on the fly
+`cat /etc/lsb-release | grep DESCRIPTION`
 
+* DISTRIB_DESCRIPTION="Ubuntu 12.04.3 LTS"
 
-local
------
-
-* this module's privates
-* accessable for testing via `.test()`
-* obviously therefore also accessable in general (if used, expect no consistancy between versions)
-
-
-
-`local.emitter`        - emits 'counters' event with latest counter values at each poll
-                       - emits 'deltas' event including pollspan (milliseconds) at each poll
-                       - IMPORTANT, poller skips if it catches it's tail
-`local.poke`           - a purposeless additional comment referring, in jest at my excessive annotations, to a non existant property
-`remote.fondle`        - not yet implemented on facebook, but just you wait...
 
 ###
 
@@ -85,73 +66,35 @@ local =
                                             # ---------------------
                                             # 
                                             # * first element is the most recent reading
-                                            # * element contains [data, timestamp, timespan]
+                                            # * element contains [counters, timestamp, deltas, timespan]
+                                            # * deltas is the difference since the preceding poll
                                             # * timespan is the elapsed time since the preceding poll
                                             # 
 
-
-    emitter:  new Emitter
-
-
-    counters: (opts, callback) ->
-
-        #
-        # * TODO: if the first call to current() happens before the first poll
-        #         then things don't go quite as planned... 
-        # 
-        #         pending fix, start() is promised, dont call this until start resolves
-        #
-
-        #
-        # responds synchronously or asynchronously
-        # ----------------------------------------
-        # 
-        # * opts arg is present to support the web export (see below)
-        #
-
-
-        error = null
-        unless local.supported 
-            platform = process.platform
-            error = new Error "Platform unsupported, expected: linux, got: #{platform}"
-                            #
-                            # * vertex does not handle this properly yet
-                            #
-            console.log error
-
-        [data, timestamp] = local.buffer[0]
-
-        result = 
-            data: data
-            at: timestamp
-
-        return callback error, result if typeof callback is 'function'
-        throw error unless local.supported
-        return result
+                                            # 
+    emitter: new Emitter                    # events
+                                            # ------
+                                            # 
+                                            # `poll` - counters, timestamp, deltas, timespan
+                                            # 
 
 
     poll: -> 
 
-        #
-        # teenager, twenty-something, and certainly middle-aged load averages may lead to a 
-        # situation where the previous poll has not completed by the next scheduled poll
-        # 
-        # this stops the birthdays piling up
-        #
-
         return if local.pollActive
         local.pollActive = true
 
-        #
-        # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
-        # VERIFIED:   cat /etc/lsb-release | grep DESCRIPTION
-        # 
-        # * DISTRIB_DESCRIPTION="Ubuntu 12.04.3 LTS"
-        #
+        counters  = {}
+        timestamp = new Date
+        deltas    = null
+        timespan  = null
 
-        now     = new Date
-        data    = {}
-        reading = [data, now]
+        try 
+            [previousCounters, previousTimestamp] = local.buffer[0]
+            timespan = timestamp - previousTimestamp
+            deltas   = {}
+
+        reading = [counters, timestamp, deltas, timespan]
 
         try source = fs.readFileSync '/proc/net/dev', 'utf8'
         catch error
@@ -168,7 +111,7 @@ local =
 
             keys    = local.metrics
             i       = -1
-            metrics = data[iface] = {}
+            metrics = counters[iface] = {}
 
             readings.match( 
 
@@ -180,16 +123,32 @@ local =
                 metrics[key] = parseInt value
 
 
-        try 
+        if deltas? 
 
-            [previousData, previousTimestamp] = local.buffer[0]
+            #
+            # keep this out of the read loop
+            # ------------------------------
+            # 
+            # * to enable superclass with nothing by read() defined here
+            # * a recursive delta processor (spots numbers) will be needed
+            #
+
+            for iface of counters
+
+                deltas[iface] ||= {}  # ( or isNumber later )
+
+                for metric of counters[iface]
+
+                    prev = previousCounters[iface][metric]
+                    curr =         counters[iface][metric]
+
+                    deltas[iface][metric] = curr - prev
 
 
         local.buffer.unshift reading
         local.buffer.pop() while local.buffer.length > local.pollHistory
 
-        local.emitter.emit 'counters', data, now
-
+        local.emitter.emit 'poll', counters, timestamp, deltas, timespan
         local.pollActive = false
 
 
@@ -213,32 +172,42 @@ local =
         local.pollTimer = undefined
 
 
-    ###
+    latest: (opts, callback) ->
 
-    vertex friendlyness
-    -------------------
+        #
+        # responds synchronously or asynchronously
+        # ----------------------------------------
+        # 
+        # * opts arg is present to support the web export (see below)
+        #
 
-    * this config() function can be exported on a running vertex (see web exports below)
-    * web hit: `config?pollInterval=10000` will call the function with `opts.query.interval`
-    * obviously having to pass opts.query.pollInterval would seem a bit obtuse for local use, 
-      so the function does a bit of juggling about that
-    * admittedly this need could be considered a bit of a design wrinkle
-        * missing:  Alternative
-        * lastseen: 29th Feb, 2017
 
-    ###
+        error = null
+        unless local.supported 
+            platform = process.platform
+            error = new Error "Platform unsupported, expected: linux, got: #{platform}"
+                            #
+                            # * vertex does not handle this properly yet
+                            #
+            console.log error
+
+        [counters, timestamp, deltas, timespan] = local.buffer[0]
+
+        result = 
+            counters:  counters
+            timestamp: timestamp
+            deltas:    deltas
+            timespan:  timespan
+
+        return callback error, result if typeof callback is 'function'
+        throw error unless local.supported
+        return result
+
 
     config: (opts, callback) -> 
 
         params = opts || {}
         if opts.query? then params = opts.query
-
-        #
-        # TODO: 
-        # * possibly use a decorator for that little switch-a-roo
-        # * vertex exported function to support promise, weird mix of
-        #   promises and callback in the module will confuse
-        #
 
         results = 
             polling: local.pollTimer?
@@ -308,15 +277,12 @@ local =
 web exports
 -----------
 
-* these functions become availiable over http if this component is grafted 
-  onto a running [vertex](https://github.com/nomilous/vertex) routes tree
-* still much to be done with vertex
-* eg. roles in the export config below does nothing yet
+[vertex](https://github.com/nomilous/vertex)
 
 ###
 
-local.counters.$www = {}
-local.config.$www = roles: ['admin']
+local.latest.$www = {}
+local.config.$www = {}
 
 
 ###
@@ -329,7 +295,7 @@ module / component exports
 
 module.exports = 
 
-    counters: local.counters
+    latest:   local.latest
     start:    local.start
     stop:     local.stop
     config:   local.config
