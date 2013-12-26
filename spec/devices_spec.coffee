@@ -14,7 +14,10 @@ describe 'Devices', ->
         #   it's not an installed node_module
         #
 
-        define emitter: -> require process.cwd() + '/components/component-emitter'
+        define 
+
+            emitter: -> require process.cwd() + '/components/component-emitter'
+            'deep-copy': -> require process.cwd() + '/components/simov-deep-copy/lib/dcopy'
 
 
     before ipso (fs, Devices) -> 
@@ -35,9 +38,12 @@ describe 'Devices', ->
             emitterInstance: Devices.test().emitter
 
 
-        @pollCount   = 0
-        @incrBytes   = 0
-        @incrPackets = 0
+        @pollCount      = 0
+
+        @currentBytes   = 0
+        @currentPackets = 0
+        @incrBytes      = 1024 * 10
+        @incrPackets    = 10
 
         fs.does readFileSync: (filename) => 
 
@@ -56,7 +62,7 @@ describe 'Devices', ->
                 Inter-|   Receive                                                |  Transmit
                  face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
                   eth0: 683321528  714240    0    0    0     0          0         0 138555453  347991    0    0    0     0       0          0
-                    lo: #{@incrBytes += 1024 * 10}   #{@incrPackets += 10}    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
+                    lo: #{@currentBytes += @incrBytes}   #{@currentPackets += @incrPackets}    0    0    0     0          0         0 95110463   32919    0    0    0     0       0          0
                 
                 """ 
 
@@ -173,6 +179,34 @@ describe 'Devices', ->
                     
                     local.timer.should.equal timer
                     facto()
+
+
+    it 'keeps history of counter values from each poll', 
+
+        ipso (facto, Devices, local) -> 
+
+            local.poll()
+            local.history.length = 0 # flush
+            local.poll()
+            local.poll()
+
+            [timespan, {eth0, lo}] = local.history.pop()
+
+            #
+            # timespan is from previous history entry to this
+            # it should be near zero because of the poll/flush/poll just done
+            #
+
+            (timespan        < 2           ).should.equal true
+            (@currentBytes   - lo.rxBytes  ).should.equal @incrBytes
+            (@currentPackets - lo.rxPackets).should.equal @incrPackets
+            facto()
+
+
+
+    it 'limits the length of the history'
+
+
 
 
     it 'exports pubsub controls', 

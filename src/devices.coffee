@@ -1,7 +1,8 @@
-fs = require 'fs'
-Emitter = require 'emitter'
+fs         = require 'fs'
+Emitter    = require 'emitter'
+dcopy      = require 'deep-copy'
 {deferred} = require 'decor'
-{EOL} = require 'os'
+{EOL}      = require 'os'
 
 ###
 
@@ -45,10 +46,13 @@ local
 `local.interval`       - the interval of reading taking
 `local.timer`          - the running timer loop reference
 `local.polling`        - the poll is currently active
+`local.pollTimestamp   - the most recen poll timestamp
 `local.historyLength`  - keeps a history of readings
 `local.history`        - Cambrian was fun, from an evolutionary progress prespective
                        - Also, i don't see much reason why range triggering can't be performed at the monitor agent
                        - Certainly lightens the load at the core
+                       - First element in the history [] is the oldest
+                       - Each element contains [timespan, reading] where timespan is milliseconds since the preceding reading
 `local.emitter`        - emits 'counters' event with latest counter values at each poll
                        - emits 'deltas' event including pollspan (milliseconds) at each poll
                        - IMPORTANT, poller skips if it catches it's tail
@@ -66,6 +70,7 @@ local =
     timer:    undefined
     polling:  false
     historyLength: 500 # thumbsuck
+    history:  []
     emitter:  new Emitter
 
     counters: (opts, callback) ->
@@ -108,8 +113,24 @@ local =
         # this stops the birthdays piling up
         #
 
-        return if local.polling 
+        return if local.polling
         local.polling = true
+
+
+        #
+        # previous reading into history
+        # -----------------------------
+        #
+
+        now = new Date
+        if local.pollTimestamp? 
+
+            timespan = now - local.pollTimestamp
+            local.history.push [timespan, dcopy( local.reading) ]
+
+        local.pollTimestamp = now
+        
+
 
         #
         # ASSUMPTION: consistancy between linuxes/versions of content of /proc/net/dev
@@ -173,8 +194,7 @@ local =
             # ASSUMPTION: [Array].map() does not break flow, therefore thigs are ready for emit
             #
 
-
-            local.emitter.emit 'counters', local.reading
+            local.emitter.emit 'counters', local.reading, now
             local.emitter.emit 'deltas',   'pending'
 
             local.polling = false

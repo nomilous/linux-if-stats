@@ -6,7 +6,8 @@
   "keywords": [],
   "dependencies": {
     "nomilous/decor": "*",
-    "component/emitter": "*"
+    "component/emitter": "*",
+    "simov/deep-copy": "*"
   },
   "development": {},
   "license": "MIT",
