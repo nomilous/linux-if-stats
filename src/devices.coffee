@@ -126,7 +126,7 @@ local =
         if local.pollTimestamp? 
 
             timespan = now - local.pollTimestamp
-            local.history.push [timespan, dcopy( local.reading) ]
+            local.history.push [ timespan, dcopy(local.reading) ]
 
         local.pollTimestamp = now
         

@@ -229,9 +229,11 @@ describe 'Devices', ->
 
             emitterInstance.does 
 
-                emit: (event, payload) -> 
+                emit: (event, payload, timestamp) -> 
 
                     if event is 'counters'
+
+                        timestamp.should.be.an.instanceof Date
                 
                         payload.eth0.should.eql
 
