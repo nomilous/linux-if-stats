@@ -85,7 +85,9 @@ local =
                                             # ---------------------
                                             # 
                                             # * first element is the most recent reading
-                                            # * element contains [data, timestamp]
+                                            # * element contains [data, timestamp, timespan]
+                                            # * timespan is the elapsed time since the preceding poll
+                                            # 
 
 
     emitter:  new Emitter
@@ -178,6 +180,10 @@ local =
                 metrics[key] = parseInt value
 
 
+        try 
+
+            [previousData, previousTimestamp] = local.buffer[0]
+
 
         local.buffer.unshift reading
         local.buffer.pop() while local.buffer.length > local.pollHistory
@@ -240,10 +246,12 @@ local =
                 value: local.pollInterval
                 changed: false
                 previous: null
+                error:    null
             history: 
                 value: local.pollHistory
                 changed: false
                 previous: null
+                error:    null
 
 
         for key of params
@@ -277,6 +285,10 @@ local =
 
                     try 
 
+                        if parseInt(params[key]) < 2
+                            results[key].error = 'History buffer length cannot be less than 2'
+                            continue
+
                         continue if local.pollHistory == params[key]
 
                         previous              = local.pollHistory
@@ -285,8 +297,6 @@ local =
                         results[key].changed  = true
                         results[key].value    = local.pollHistory
                         results[key].previous = previous
-
-
 
 
         if typeof callback is 'function' then callback null, results

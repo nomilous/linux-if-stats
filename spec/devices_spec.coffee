@@ -361,14 +361,27 @@ describe 'Devices', ->
                                 value:    2000
                                 changed:  true
                                 previous: 1001
+                                error:    null
 
                             history:
                                 value:    1969
                                 changed:  true
                                 previous: 1002
+                                error:    null
 
 
                         facto()
+
+    it 'cannot set history buffer length to less than 2', 
+
+        ipso (facto, Devices) -> 
+
+            Devices.config 
+                history: 1
+                (err, res) -> 
+
+                    res.history.error.should.equal 'History buffer length cannot be less than 2'
+                    facto()
 
 
     it 'calls back with running config even if no change', 
@@ -389,11 +402,13 @@ describe 'Devices', ->
                         value:    1001
                         changed:  false
                         previous: null
+                        error:    null
 
                     history:
                         value:    1002
                         changed:  false
                         previous: null
+                        error:    null
                         
                 facto()
 
