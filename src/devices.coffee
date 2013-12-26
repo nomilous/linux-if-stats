@@ -15,12 +15,10 @@ IMPORTANT
 
     * `counters`  - Hash of counters
     * `timestamp` - Date
-    * `deltas`    - Hash of counters, differece since preceding poll, null on first poll
-    * `timespan`  - milliseconds since last poll, null on first poll
+    * `deltas`    - Hash of counters, differece since preceding poll, **null on first poll**
+    * `timespan`  - milliseconds since last poll, **null on first poll**
 
-* emits 'error' event with
-
-    * `error` - The error
+* emits 'error' event with he error
 
 * start returns promise, resolves after first poll
 
