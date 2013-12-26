@@ -183,7 +183,7 @@ describe 'Devices', ->
 
     it 'keeps history of counter values from each poll', 
 
-        ipso (facto, Devices, local) -> 
+        ipso (local) -> 
 
             local.poll()
             local.history.length = 0 # flush
@@ -200,11 +200,33 @@ describe 'Devices', ->
             (timespan        < 2           ).should.equal true
             (@currentBytes   - lo.rxBytes  ).should.equal @incrBytes
             (@currentPackets - lo.rxPackets).should.equal @incrPackets
-            facto()
 
 
 
-    it 'limits the length of the history'
+    it 'limits the length of the history and with sequence oldest to newest',
+
+        ipso (local) -> 
+
+            local.historyLength = 3
+            local.poll()
+            local.history.length = 0 # flush history array
+
+            local.poll()
+            local.poll()
+            local.poll()
+            local.poll()
+            local.poll()
+
+            local.history.length.should.equal 3
+
+            [timespan, {eth0, lo}] = local.history[0]
+            (@currentBytes - lo.rxBytes).should.equal @incrBytes * 3 # oldest
+
+            [timespan, {eth0, lo}] = local.history[1]
+            (@currentBytes - lo.rxBytes).should.equal @incrBytes * 2
+
+            [timespan, {eth0, lo}] = local.history[2]
+            (@currentBytes - lo.rxBytes).should.equal @incrBytes * 1
 
 
 

@@ -128,6 +128,8 @@ local =
             timespan = now - local.pollTimestamp
             local.history.push [ timespan, dcopy(local.reading) ]
 
+            local.history.shift() while local.history.length > local.historyLength
+
         local.pollTimestamp = now
         
 

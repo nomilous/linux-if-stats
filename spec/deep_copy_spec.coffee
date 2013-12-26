@@ -11,7 +11,7 @@ describe 'Which is faster', ->
             accretion: '-4,570,000,000'
             'SOLAR MAIN SEQUENCE START': '-4,550,000,000'
             hadean: '-4,500,000,000'
-            'COLLOSAL LAGRANGIAN PROTOPLANETARY IMPACT': '-4,500,000,000'
+            'COLOSSAL LAGRANGIAN PROTOPLANETARY IMPACT': '-4,500,000,000'
             archean:
                 'EARTHS CRUST STABALIZES': '-4,400,000,000'
                 eoarchean: '-3,750,000,000'
@@ -31,7 +31,7 @@ describe 'Which is faster', ->
         phanerozoic:
             paleazoic:
                 cambrian:
-                    'CHAMBRIAN EXPLOSION': '-530,000,000'
+                    'CAMBRIAN EXPLOSION': '-530,000,000'
                     ordovician:' -490,000,000'
                     'ORDOVICIAN-SILURIAN MASS EXTINCTION EVENT': '-450,000,000'
                     silurian: '-450,000,000'
