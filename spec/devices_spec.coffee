@@ -416,7 +416,7 @@ describe 'Devices', ->
                 res.should.eql 
 
                     polling: false
-                    error: 'Error: moo'
+                    error: 'moo'
 
                     interval:
                         value:    1001
