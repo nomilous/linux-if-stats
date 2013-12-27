@@ -244,7 +244,7 @@ local =
 
         results = 
             polling: local.pollTimer?
-            error: local.pollError
+            error: try local.pollError.toString()
             interval:
                 value: local.pollInterval
                 changed: false

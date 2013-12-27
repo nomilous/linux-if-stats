@@ -163,16 +163,16 @@ describe 'Devices', ->
             Devices.stop()
             local.supported  = false
             process.platform = 'darwin'
-            
+
             Devices.start()
             Devices.on 'error', (error) -> 
 
-                
                 local.supported = true
                 process.platform = 'linux'
 
                 error.message.should.equal 'Platform unsupported, expected: linux, got: darwin'
                 facto()
+
 
 
     it 'does first poll before resolving the start promise', 
@@ -401,9 +401,11 @@ describe 'Devices', ->
                     facto()
 
 
-    it 'calls back with running config even if no change', 
+    it 'calls back with running config even if no change, including error', 
 
         ipso (facto, local, Devices) -> 
+
+            local.pollError = new Error 'moo'
 
             Devices.stop()
 
@@ -414,7 +416,7 @@ describe 'Devices', ->
                 res.should.eql 
 
                     polling: false
-                    error: null
+                    error: 'Error: moo'
 
                     interval:
                         value:    1001
