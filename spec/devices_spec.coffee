@@ -156,6 +156,25 @@ describe 'Devices', ->
                 facto()
 
 
+    it 'emits error on unsupported platform at start', 
+
+        ipso (facto, Devices, local) -> 
+
+            Devices.stop()
+            local.supported  = false
+            process.platform = 'darwin'
+            
+            Devices.start()
+            Devices.on 'error', (error) -> 
+
+                
+                local.supported = true
+                process.platform = 'linux'
+
+                error.message.should.equal 'Platform unsupported, expected: linux, got: darwin'
+                facto()
+
+
     it 'does first poll before resolving the start promise', 
 
         ipso (facto, Devices, local) -> 
@@ -307,10 +326,11 @@ describe 'Devices', ->
 
             Devices.start().then -> 
 
-                Devices.config interval: 10000
-                local.pollInterval.should.equal 10000
-                local.pollTimer._idleTimeout.should.equal 10000
-                facto()
+                Devices.config interval: 10000, ->
+
+                    local.pollInterval.should.equal 10000
+                    local.pollTimer._idleTimeout.should.equal 10000
+                    facto()
 
 
     it 'can reset the interval pending poller next start if not running', 
@@ -352,6 +372,7 @@ describe 'Devices', ->
                         res.should.eql 
 
                             polling: true
+                            error: null
 
                             interval:
                                 value:    2000
@@ -393,6 +414,7 @@ describe 'Devices', ->
                 res.should.eql 
 
                     polling: false
+                    error: null
 
                     interval:
                         value:    1001

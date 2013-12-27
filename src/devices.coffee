@@ -162,15 +162,24 @@ local =
 
     start: deferred (action) -> 
 
-        if not local.supported then return action.reject( 
-            new Error "Platform unsupported, expected: linux, got: #{process.platform}"
-        )
+        process.nextTick -> 
 
-        return action.resolve() if local.pollTimer?  # already running
+            #
+            # * nextTick to give externals time to subscribe to errors
+            #   and therefore receive the unsupported event
+            #
 
-        local.poll()
-        local.pollTimer = setInterval local.poll, local.pollInterval
-        action.resolve()
+            if not local.supported
+
+                error = local.pollError = new Error "Platform unsupported, expected: linux, got: #{process.platform}"
+                local.emitter.emit 'error', error
+                return action.reject error
+
+            return action.resolve() if local.pollTimer?  # already running
+
+            local.poll()
+            local.pollTimer = setInterval local.poll, local.pollInterval
+            action.resolve()
 
 
 
@@ -190,11 +199,7 @@ local =
 
         unless local.supported 
             platform = process.platform
-            error = new Error "Platform unsupported, expected: linux, got: #{platform}"
-            console.log error
-                            #
-                            # * vertex does not handle this properly yet
-                            #
+            local.pollError = error = new Error "Platform unsupported, expected: linux, got: #{platform}"
             
         try
 
@@ -221,18 +226,25 @@ local =
         # sync response
         #
 
-        throw error unless local.supported
+        throw error if error
         return result
 
 
 
     config: (opts, callback) -> 
 
+        #
+        # todo, vertex support promises, things getting a bit wierd here...
+        #
+
         params = opts || {}
         if opts.query? then params = opts.query
 
+        restart = false
+
         results = 
             polling: local.pollTimer?
+            error: local.pollError
             interval:
                 value: local.pollInterval
                 changed: false
@@ -267,10 +279,7 @@ local =
                         # * if not running, it still wont be after this
                         #
 
-                        if local.pollTimer?
-
-                            local.stop()
-                            local.start()
+                        restart = true if local.pollTimer?
 
                 when 'history'
 
@@ -290,7 +299,15 @@ local =
                         results[key].previous = previous
 
 
-        if typeof callback is 'function' then callback null, results
+        if typeof callback is 'function' 
+
+            return callback null, results unless restart
+
+            local.stop()
+            local.start().then( 
+                -> callback null, results
+                (error) -> callback error, results
+            )
 
 
 
