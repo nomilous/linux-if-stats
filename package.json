@@ -1,12 +1,15 @@
 {
   "name": "linux-if-stats",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": false,
   "description": "vital - linux network interface counters",
   "devDependencies": {
     "ipso": "0.0.20"
   },
-  "repo":"https://github.com/nomilous/linux-if-stats.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nomilous/linux-if-stats.git"
+  },
   "dependencies": {
     "decor": "0.0.2",
     "deepcopy": "~0.3.3"
