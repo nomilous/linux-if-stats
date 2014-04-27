@@ -1,8 +1,6 @@
 
 {ipso, define} = require 'ipso'
 
-define 'deep-copy': -> require process.cwd() + '/components/simov-deep-copy/lib/dcopy'
-
 describe 'Which is faster', -> 
 
     before -> @tree = 
@@ -86,7 +84,7 @@ describe 'Which is faster', ->
 
     it 'is faster to deep copy', -> 
 
-        dcopy = require 'deep-copy'
+        dcopy = require 'deepcopy'
         start = Date.now()
 
         copy = dcopy @tree for i in [0..10000]
@@ -106,7 +104,7 @@ describe 'Which is faster', ->
 
     it 'is faster to deep copy', -> 
 
-        dcopy = require 'deep-copy'
+        dcopy = require 'deepcopy'
         start = Date.now()
 
         copy = dcopy @tree for i in [0..10000]

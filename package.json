@@ -1,12 +1,13 @@
 {
-  "name": "linux-if-stats",
-  "version": "0.0.0",
+  "name": "linuxIfStats",
+  "version": "0.0.1",
   "private": true,
-  "description": "linux-if-stats",
+  "description": "vital - linux network interface counters",
   "devDependencies": {
     "ipso": "0.0.20"
   },
   "dependencies": {
-    "decor": "0.0.2"
+    "decor": "0.0.2",
+    "deepcopy": "~0.3.3"
   }
 }

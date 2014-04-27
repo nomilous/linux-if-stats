@@ -1,17 +1,7 @@
-`component install nomilous/linux-if-stats` 0.0.0 <br />
+0.0.1 <br />
 
-linux-if-stats
-==============
+linuxIfStats
+============
 
 [vital](https://github.com/nomilous/vital) - linux network interface counters
 
-
-dev / test 
-
-```
-
-# sudo npm install ipso-cli -g
-npm install
-ipso -m
-
-```

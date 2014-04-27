@@ -16,8 +16,8 @@ describe 'Devices', ->
 
         define 
 
-            emitter: -> require process.cwd() + '/components/component-emitter'
-            'deep-copy': -> require process.cwd() + '/components/simov-deep-copy/lib/dcopy'
+            #emitter: -> require 'emitter'
+            #'deepcopy': -> -> # require process.cwd() + '/components/simov-deep-copy/lib/dcopy'
 
 
     before ipso (fs, Devices) -> 

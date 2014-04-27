@@ -1,6 +1,6 @@
 fs         = require 'fs'
-Emitter    = require 'emitter'
-dcopy      = require 'deep-copy'
+Emitter    = require('events').EventEmitter
+dcopy      = require 'deepcopy'
 {deferred} = require 'decor'
 {EOL}      = require 'os'
 
