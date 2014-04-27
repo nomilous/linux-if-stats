@@ -1,7 +1,7 @@
 {
-  "name": "linuxIfStats",
+  "name": "linux-if-stats",
   "version": "0.0.1",
-  "private": true,
+  "private": false,
   "description": "vital - linux network interface counters",
   "devDependencies": {
     "ipso": "0.0.20"

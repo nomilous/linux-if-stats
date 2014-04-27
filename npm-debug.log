@@ -1,0 +1,134 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'publish' ]
+2 info using npm@1.3.8
+3 info using node@v0.10.16
+4 verbose publish [ '.' ]
+5 verbose cache add [ '.', null ]
+6 verbose cache add name=undefined spec="." args=[".",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: '.',
+7 verbose parsed url   path: '.',
+7 verbose parsed url   href: '.' }
+8 silly lockFile 3a52ce78- .
+9 verbose lock . /Users/richard/.npm/3a52ce78-.lock
+10 verbose tar pack [ '/var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz',
+10 verbose tar pack   '.' ]
+11 verbose tarball /var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+12 verbose folder .
+13 silly lockFile 1f1177db-tar tar://.
+14 verbose lock tar://. /Users/richard/.npm/1f1177db-tar.lock
+15 silly lockFile 83ee83c3-27724-0-7763067649211735-tmp-tgz tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+16 verbose lock tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz /Users/richard/.npm/83ee83c3-27724-0-7763067649211735-tmp-tgz.lock
+17 silly lockFile 1f1177db-tar tar://.
+18 silly lockFile 1f1177db-tar tar://.
+19 silly lockFile 83ee83c3-27724-0-7763067649211735-tmp-tgz tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+20 silly lockFile 83ee83c3-27724-0-7763067649211735-tmp-tgz tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+21 verbose tar unpack /var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+22 silly lockFile ff165976-27724-0-7763067649211735-package tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+23 verbose lock tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package /Users/richard/.npm/ff165976-27724-0-7763067649211735-package.lock
+24 silly lockFile 83ee83c3-27724-0-7763067649211735-tmp-tgz tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+25 verbose lock tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz /Users/richard/.npm/83ee83c3-27724-0-7763067649211735-tmp-tgz.lock
+26 silly gunzTarPerm modes [ '755', '644' ]
+27 silly gunzTarPerm extractEntry package.json
+28 silly gunzTarPerm extractEntry .npmignore
+29 silly gunzTarPerm extractEntry README.md
+30 silly gunzTarPerm extractEntry index.js
+31 silly gunzTarPerm extractEntry History.md
+32 silly gunzTarPerm extractEntry Makefile
+33 silly gunzTarPerm extractEntry lib/devices.js
+34 silly gunzTarPerm extractEntry spec/deep_copy_spec.coffee
+35 silly gunzTarPerm extractEntry spec/devices_spec.coffee
+36 silly gunzTarPerm extractEntry src/devices.coffee
+37 silly lockFile ff165976-27724-0-7763067649211735-package tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+38 silly lockFile ff165976-27724-0-7763067649211735-package tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+39 silly lockFile 83ee83c3-27724-0-7763067649211735-tmp-tgz tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+40 silly lockFile 83ee83c3-27724-0-7763067649211735-tmp-tgz tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/tmp.tgz
+41 verbose tar pack [ '/Users/richard/.npm/linuxIfStats/0.0.1/package.tgz',
+41 verbose tar pack   '/var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package' ]
+42 verbose tarball /Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+43 verbose folder /var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+44 silly lockFile ff165976-27724-0-7763067649211735-package tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+45 verbose lock tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package /Users/richard/.npm/ff165976-27724-0-7763067649211735-package.lock
+46 silly lockFile aecf682f-m-linuxIfStats-0-0-1-package-tgz tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+47 verbose lock tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz /Users/richard/.npm/aecf682f-m-linuxIfStats-0-0-1-package-tgz.lock
+48 silly lockFile ff165976-27724-0-7763067649211735-package tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+49 silly lockFile ff165976-27724-0-7763067649211735-package tar:///var/folders/zl/_r5sywtj6cq3_lbd247tpjwc0000gn/T/npm-30576-hl7oHMTf/1398619327724-0.7763067649211735/package
+50 silly lockFile aecf682f-m-linuxIfStats-0-0-1-package-tgz tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+51 silly lockFile aecf682f-m-linuxIfStats-0-0-1-package-tgz tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+52 silly lockFile 260b94bf-d-npm-linuxIfStats-0-0-1-package /Users/richard/.npm/linuxIfStats/0.0.1/package
+53 verbose lock /Users/richard/.npm/linuxIfStats/0.0.1/package /Users/richard/.npm/260b94bf-d-npm-linuxIfStats-0-0-1-package.lock
+54 silly lockFile 260b94bf-d-npm-linuxIfStats-0-0-1-package /Users/richard/.npm/linuxIfStats/0.0.1/package
+55 silly lockFile 260b94bf-d-npm-linuxIfStats-0-0-1-package /Users/richard/.npm/linuxIfStats/0.0.1/package
+56 verbose tar unpack /Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+57 silly lockFile 49371c96-d-npm-linuxIfStats-0-0-1-package tar:///Users/richard/.npm/linuxIfStats/0.0.1/package
+58 verbose lock tar:///Users/richard/.npm/linuxIfStats/0.0.1/package /Users/richard/.npm/49371c96-d-npm-linuxIfStats-0-0-1-package.lock
+59 silly lockFile aecf682f-m-linuxIfStats-0-0-1-package-tgz tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+60 verbose lock tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz /Users/richard/.npm/aecf682f-m-linuxIfStats-0-0-1-package-tgz.lock
+61 silly gunzTarPerm modes [ '755', '644' ]
+62 silly gunzTarPerm extractEntry package.json
+63 silly gunzTarPerm extractEntry .npmignore
+64 silly gunzTarPerm extractEntry README.md
+65 silly gunzTarPerm extractEntry index.js
+66 silly gunzTarPerm extractEntry History.md
+67 silly gunzTarPerm extractEntry Makefile
+68 silly gunzTarPerm extractEntry lib/devices.js
+69 silly gunzTarPerm extractEntry spec/deep_copy_spec.coffee
+70 silly gunzTarPerm extractEntry spec/devices_spec.coffee
+71 silly gunzTarPerm extractEntry src/devices.coffee
+72 silly lockFile 49371c96-d-npm-linuxIfStats-0-0-1-package tar:///Users/richard/.npm/linuxIfStats/0.0.1/package
+73 silly lockFile 49371c96-d-npm-linuxIfStats-0-0-1-package tar:///Users/richard/.npm/linuxIfStats/0.0.1/package
+74 silly lockFile aecf682f-m-linuxIfStats-0-0-1-package-tgz tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+75 silly lockFile aecf682f-m-linuxIfStats-0-0-1-package-tgz tar:///Users/richard/.npm/linuxIfStats/0.0.1/package.tgz
+76 verbose chmod /Users/richard/.npm/linuxIfStats/0.0.1/package.tgz 644
+77 verbose chown /Users/richard/.npm/linuxIfStats/0.0.1/package.tgz [ 501, 20 ]
+78 silly lockFile 3a52ce78- .
+79 silly lockFile 3a52ce78- .
+80 silly publish { name: 'linuxIfStats',
+80 silly publish   version: '0.0.1',
+80 silly publish   private: false,
+80 silly publish   description: 'vital - linux network interface counters',
+80 silly publish   devDependencies: { ipso: '0.0.20' },
+80 silly publish   dependencies: { decor: '0.0.2', deepcopy: '~0.3.3' },
+80 silly publish   readme: '0.0.1 <br />\n\nlinuxIfStats\n============\n\n[vital](https://github.com/nomilous/vital) - linux network interface counters\n\n',
+80 silly publish   readmeFilename: 'README.md',
+80 silly publish   _id: 'linuxIfStats@0.0.1',
+80 silly publish   dist: { shasum: '8fb21dce927031727354cf69d22f3f6b08644666' },
+80 silly publish   _from: '.' }
+81 verbose url raw linuxIfStats
+82 verbose url resolving [ 'https://registry.npmjs.org/', './linuxIfStats' ]
+83 verbose url resolved https://registry.npmjs.org/linuxIfStats
+84 info trying registry request attempt 1 at 19:22:07
+85 http PUT https://registry.npmjs.org/linuxIfStats
+86 http 403 https://registry.npmjs.org/linuxIfStats
+87 info trying registry request attempt 1 at 19:22:13
+88 http PUT https://registry.npmjs.org/linuxIfStats
+89 http 403 https://registry.npmjs.org/linuxIfStats
+90 error publish Failed PUT response 403
+91 error Error: forbidden New packages must have all-lowercase names: linuxIfStats
+91 error     at RegClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:272:14)
+91 error     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/index.js:148:22)
+91 error     at Request.EventEmitter.emit (events.js:98:17)
+91 error     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/index.js:891:14)
+91 error     at Request.EventEmitter.emit (events.js:117:20)
+91 error     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/index.js:842:12)
+91 error     at IncomingMessage.EventEmitter.emit (events.js:117:20)
+91 error     at _stream_readable.js:912:16
+91 error     at process._tickCallback (node.js:415:13)
+92 error If you need help, you may report this log at:
+92 error     <http://github.com/isaacs/npm/issues>
+92 error or email it to:
+92 error     <npm-@googlegroups.com>
+93 error System Darwin 12.5.0
+94 error command "node" "/usr/local/bin/npm" "publish"
+95 error cwd /Users/richard/git/linuxIfStats
+96 error node -v v0.10.16
+97 error npm -v 1.3.8
+98 verbose exit [ 1, true ]

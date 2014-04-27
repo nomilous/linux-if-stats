@@ -1,7 +1,7 @@
 0.0.1 <br />
 
-linuxIfStats
-============
+linux-if-stats
+==============
 
 [vital](https://github.com/nomilous/vital) - linux network interface counters
 
